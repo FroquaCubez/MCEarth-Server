@@ -26,6 +26,7 @@ namespace ProjectEarthServerAPI
                 .MinimumLevel.Debug()
 				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+				.MinimumLevel.Override("ProjectEarthServerAPI.Authentication", LogEventLevel.Warning)
 				.CreateLogger();
 
             Log.Logger = log;

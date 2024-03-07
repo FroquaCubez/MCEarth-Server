@@ -69,7 +69,7 @@ namespace ProjectEarthServerAPI
 				options.MessageTemplate = "{RemoteIpAddress} {RequestMethod} {RequestScheme}://{RequestHost}{RequestPath}{RequestQuery} responded {StatusCode} in {Elapsed:0.0000} ms";
 
 				// Emit debug-level events instead of the defaults
-				options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Debug;
+				options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Verbose;
 
 				// Attach additional properties to the request completion event
 				options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
