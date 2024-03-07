@@ -13,7 +13,6 @@ namespace ProjectEarthServerAPI.Util
 {
 	public class AdventureUtils
 	{
-
 		public static List<LocationResponse.ActiveLocation> Encounters = new List<LocationResponse.ActiveLocation>();
 
 		public static string[] AdventureIcons = new[] 
@@ -31,10 +30,10 @@ namespace ProjectEarthServerAPI.Util
 		{
 			InventoryUtils.RemoveItemFromInv(playerId, crystalId);
 
-			var selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
-			var selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
+			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
+			Guid selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
 
-			var adventureLocation = new LocationResponse.ActiveLocation
+			LocationResponse.ActiveLocation adventureLocation = new LocationResponse.ActiveLocation
 			{
 				coordinate = adventureRequest.coordinate,
 				encounterMetadata = new EncounterMetadata
@@ -62,27 +61,27 @@ namespace ProjectEarthServerAPI.Util
 			return new AdventureRequestResult {result = adventureLocation, updates = new Updates()};
 		}
 
-		public static List<Coordinate> readEncounterLocations() {
-            var filepath = StateSingleton.Instance.config.EncounterLocationsFileLocation;
-            var encouterLocationsJson = File.ReadAllText(filepath);
+		public static List<Coordinate> ReadEncounterLocations() {
+			string filepath = StateSingleton.Instance.config.EncounterLocationsFileLocation;
+			string encouterLocationsJson = File.ReadAllText(filepath);
             return JsonConvert.DeserializeObject<List<Coordinate>>(encouterLocationsJson);
         }
 
 		public static List<LocationResponse.ActiveLocation> GetEncountersForLocation(double lat, double lon) {
-			var encouterLocations = readEncounterLocations();
+			List<Coordinate> encouterLocations = ReadEncounterLocations();
 
-			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow );
+			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
 
-			foreach (var coordinate in encouterLocations)
+			foreach (Coordinate coordinate in encouterLocations)
 			{
 				if (Encounters.FirstOrDefault(match => match.coordinate.latitude == coordinate.latitude && match.coordinate.longitude == coordinate.longitude) == null) {
-					var selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
-					var selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
-					var currentTime = DateTime.UtcNow;
+					string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
+					Guid selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
+					DateTime currentTime = DateTime.UtcNow;
 					Encounters.Add(new LocationResponse.ActiveLocation
 					{
 						coordinate = coordinate,
-						encounterMetadata = new Models.Multiplayer.Adventure.EncounterMetadata
+						encounterMetadata = new EncounterMetadata
 						{
 							anchorId = "",
 							anchorState = "Off",
