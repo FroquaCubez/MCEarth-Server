@@ -46,7 +46,7 @@ namespace ProjectEarthServerAPI.Models.Features
 			public float? blockDamage { get; set; }
 			public float? health { get; set; }
 			public BlockMetadata blockMetadata { get; set; }
-			public ItemMetadata ItemMetadata { get; set; }
+			public ItemMetadata itemMetadata { get; set; }
 			public BoostMetadata? boostMetadata { get; set; }
 			public JournalMetadata journalMetadata { get; set; }
 			public AudioMetadata? audioMetadata { get; set; }

@@ -29,6 +29,14 @@ namespace ProjectEarthServerAPI.Util
 			WriteProfile(playerId, playerProfile);
 		}
 
+		public static void AddHealthToPlayer(string playerId, int healthPoints)
+		{
+			var playerProfile = ReadProfile(playerId);
+			playerProfile.healthPercentage += healthPoints;
+
+			WriteProfile(playerId, playerProfile);
+		}
+
 		private static void RewardLevelupRewards(string playerId, int level)
 		{
 			var rewards = ProfileResponse.levels[level.ToString()].rewards;

@@ -183,6 +183,32 @@ namespace ProjectEarthServerAPI.Controllers
 
 			return Content(JsonConvert.SerializeObject(returnHotbar.Item2));
 		}
+
+		[ApiVersion("1.1")]
+		[HttpPost]
+		[Route("1/api/v{version:apiVersion}/inventory/survival/{ItemID}/consume")]
+		public async Task<IActionResult> ConsumeItem(Guid ItemID) //TODO: actual healing logic ._.
+		{
+			var stream = new StreamReader(Request.Body);
+			var body = await stream.ReadToEndAsync();
+
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			Log.Information($"{authtoken} is trying to consume item {ItemID}");
+			InventoryUtils.RemoveItemFromInv(authtoken, ItemID);
+			InventoryUtils.AddItemToInv(authtoken, ItemID, 2);
+			ProfileUtils.AddHealthToPlayer(authtoken, 20);
+			var streamVersion = GenericUtils.GetNextStreamVersion();
+			var resp = new UpdateResponse
+			{
+				updates = new Updates
+				{
+					characterProfile = streamVersion,
+					inventory = streamVersion
+				}
+			};
+
+			return Content(JsonConvert.SerializeObject(resp), "application/json");
+		}
 	}
 
 	[Authorize]

@@ -19,6 +19,7 @@ using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authentication;
 using ProjectEarthServerAPI.Authentication;
 using Serilog;
+using Serilog.Events;
 
 namespace ProjectEarthServerAPI
 {
@@ -62,7 +63,23 @@ namespace ProjectEarthServerAPI
 				//app.UseDeveloperExceptionPage();
 			}
 
-			//app.UseSerilogRequestLogging();
+			app.UseSerilogRequestLogging(options =>
+			{
+				// Customize the message template
+				options.MessageTemplate = "{RemoteIpAddress} {RequestMethod} {RequestScheme}://{RequestHost}{RequestPath}{RequestQuery} responded {StatusCode} in {Elapsed:0.0000} ms";
+
+				// Emit debug-level events instead of the defaults
+				options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Debug;
+
+				// Attach additional properties to the request completion event
+				options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+				{
+					diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+					diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+					diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
+					diagnosticContext.Set("RequestQuery", httpContext.Request.QueryString);
+				};
+			});
 
 			app.UseETagger();
 			//app.UseHttpsRedirection();

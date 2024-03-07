@@ -8,6 +8,7 @@ namespace ProjectEarthServerAPI.Util
 		public static Updates RedeemRewards(string playerId, Rewards rewards, EventLocation location)
 		{
 			Updates updates = new Updates();
+			if (rewards == null) return updates;
 			uint nextStreamId = GenericUtils.GetNextStreamVersion();
 			foreach (var buildplate in rewards.Buildplates)
 			{

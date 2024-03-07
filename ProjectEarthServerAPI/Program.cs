@@ -7,6 +7,7 @@ using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Player;
 using Serilog;
 using Uma.Uuid;
+using Serilog.Events;
 
 namespace ProjectEarthServerAPI
 {
@@ -23,7 +24,9 @@ namespace ProjectEarthServerAPI
                 .WriteTo.Console()
                 .WriteTo.File("logs/debug.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, fileSizeLimitBytes: 8338607, outputTemplate: "{Timestamp:HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .MinimumLevel.Debug()
-                .CreateLogger();
+				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+				.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+				.CreateLogger();
 
             Log.Logger = log;
 
@@ -46,7 +49,7 @@ namespace ProjectEarthServerAPI
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                //.UseSerilog()
+                .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

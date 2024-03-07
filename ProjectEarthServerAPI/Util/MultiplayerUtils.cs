@@ -660,7 +660,7 @@ namespace ProjectEarthServerAPI.Util
 			ServerInformation info = null;
 			string challenge = null;
 
-			while (!result.CloseStatus.HasValue)
+			while (!result.CloseStatus.HasValue && webSocketRequest.State == WebSocketState.Open)
 			{
 				info ??= JsonConvert.DeserializeObject<ServerInformation>(Encoding.UTF8.GetString(messageBuffer));
 
@@ -728,11 +728,27 @@ namespace ProjectEarthServerAPI.Util
 						break;
 
 					case ServerAuthInformation.Authed:
-						while (true) { }
-
+						try
+						{
+							result = await webSocketRequest.ReceiveAsync(new ArraySegment<byte>(messageBuffer), CancellationToken.None);
+						}
+						catch
+						{
+							continue;
+						}
 						break;
 				}
 			}
+
+			if (info != null)
+				Log.Information($"Server {info.serverId} has disconnected from the api");
+
+			if (info != null && ApiKeyList.ContainsKey(info.serverId))
+				ApiKeyList.Remove(info.serverId);
+			if (info != null && ServerInfoList.ContainsKey(info.serverId))
+				ServerInfoList.Remove(info.serverId);
+			if (info != null && ServerSocketList.ContainsKey(info.serverId))
+				ServerSocketList.Remove(info.serverId);
 		}
 
 		private static bool VerifyChallenge(string challenge, string challengeResponse, ServerInformation info)

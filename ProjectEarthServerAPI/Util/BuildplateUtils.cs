@@ -87,7 +87,7 @@ namespace ProjectEarthServerAPI.Util
 		{
 			BuildplateData buildplate = ReadBuildplate(buildplateReq.buildplateId);
 
-			return new BuildplateShareResponse {result = new BuildplateShareResponse.BuildplateShareInfo {buildplateData = buildplate, playerId = null}};
+			return new BuildplateShareResponse {result = new BuildplateShareResponse.BuildplateShareInfo {buildplateData = buildplate, playerId = buildplateReq.playerId}};
 		}
 
 		public static void UpdateBuildplateAndList(BuildplateShareResponse data, string playerId)
