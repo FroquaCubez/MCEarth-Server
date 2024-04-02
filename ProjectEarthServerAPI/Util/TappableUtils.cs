@@ -30,6 +30,37 @@ namespace ProjectEarthServerAPI.Util
 			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map"
 		};
 
+		public static string[] TappableGrass = new[]
+		{
+			"genoa:grass_mound_a_tappable_map", "genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:tree_oak_a_tappable_map",
+			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
+			"genoa:tree_spruce_a_tappable_map"
+		};
+
+		public static string[] TappableForest = new[]
+		{
+			"genoa:tree_oak_a_tappable_map",
+			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
+			"genoa:tree_spruce_a_tappable_map"
+		};
+
+		public static string[] TappablePlain = new[]
+		{
+			"genoa:grass_mound_a_tappable_map", "genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:sheep_tappable_map",
+			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map"
+		};
+
+		public static string[] TappableStones = new[]
+		{
+			"genoa:stone_mound_a_tappable_map", "genoa:stone_mound_b_tappable_map",
+			"genoa:stone_mound_c_tappable_map"
+		};
+
+		public static string[] TappableWater = new[]
+		{
+			"genoa:squid_tappable_map"
+		};
+
 		private static Random random = new Random();
 
 		// For json deserialization
@@ -72,60 +103,144 @@ namespace ProjectEarthServerAPI.Util
 		//double is default set to negative because its *extremely unlikely* someone will set a negative value intentionally, and I can't set it to null.
 		public static LocationResponse.ActiveLocation createTappableInRadiusOfCoordinates(double latitude, double longitude, double radius = -1.0, string type = null)
 		{
-			//if null we do random
-			type ??= TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)];
+			// Debugging: Log method parameters
+			// Log.Debug($"createTappableInRadiusOfCoordinates called with latitude: {latitude}, longitude: {longitude}, radius: {radius}, type: {type}");
+
 			if (radius == -1.0)
 			{
 				radius = StateSingleton.Instance.config.tappableSpawnRadius;
-			}
-			Item.Rarity rarity;
-
-			try
-			{
-				rarity = StateSingleton.Instance.tappableData[type].rarity;
-			}
-			catch (Exception e)
-			{
-				Log.Error("[Tappables] Tappable rarity was not found for tappable type " + type + ". Using common");
-				rarity = Item.Rarity.Common;
+				// Log.Information($"Using default radius from config: {radius}");
 			}
 
 			var currentTime = DateTime.UtcNow;
 
+			// Debugging: Log current time
+			Log.Debug($"Current time: {currentTime}");
+
 			//Nab tile loc
-			string tileId = Tile.getTileForCoordinates(latitude, longitude);
+			string tileId = Tile.GetTileForCoordinates(latitude, longitude);
+			Log.Debug($"Tile ID for coordinates ({latitude}, {longitude}): {tileId}");
+
+			// Modificar las coordenadas para LocationResponse.ActiveLocation
+			double randomLatitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6);
+			double randomLongitude = Math.Round(longitude + (random.NextDouble() * 2 - 1) * radius, 6);
+
+			//Log.Debug($"Biome: {tappableBiome}");
+
+			TappableUtils tappableUtils = new TappableUtils();
+
+			if (StateSingleton.Instance.config.biomeGeneration == true)
+			{
+				// Obtener el bioma para las nuevas coordenadas manipuladas
+				string tappableBiome = Biome.GetTappableBiomeForCoordinates(randomLatitude, randomLongitude).ToString();
+				Log.Debug($"Tappable Biome in ({randomLatitude}, {randomLongitude}): {tappableBiome}");
+
+				if (random.NextDouble() < 0.05)
+				{
+					type = "genoa:chest_tappable_map";
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Building")
+				{
+					type ??= TappableStones[random.Next(0, TappableStones.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Plain")
+				{
+					type ??= TappablePlain[random.Next(0, TappablePlain.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Grass")
+				{
+					type ??= TappableGrass[random.Next(0, TappableGrass.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Forest")
+				{
+					type ??= TappableForest[random.Next(0, TappableForest.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Water")
+				{
+					type ??= TappableWater[random.Next(0, TappableWater.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else
+				{
+					return createTappableInRadiusOfCoordinates(latitude, longitude, radius, type);
+				}
+			}
+			else
+			{
+				type ??= TappableTypes[random.Next(0, TappableTypes.Length)];
+
+				return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+			}
+		}
+
+		public LocationResponse.ActiveLocation CreateTappable(string type, string tileId, double randomLatitude, double randomLongitude, DateTime currentTime)
+		{
+			// Obtain the type of tappable if not specified
+			Log.Debug($"Selected tappable type: \x1b[35m{type}\x1b[0m"); // Magenta color for better visibility
+
+			// Check if the tappable type is present in the tappables data
+			if (!StateSingleton.Instance.tappableData.TryGetValue(type, out TappableLootTable tappableData))
+			{
+				Log.Error("[Tappables] Tappable rarity was not found for tappable type \x1b[31m" + type + "\x1b[0m. Using common"); // Red color for error
+				return null; // Return null if the tappable type is not present
+			}
+
+			// Get the rarity of the tappable type
+			Item.Rarity rarity = tappableData.rarity;
+
+			// Create the tappable
 			LocationResponse.ActiveLocation tappable = new LocationResponse.ActiveLocation
 			{
-				id = Guid.NewGuid(), // Generate a random GUID for the tappable
+				id = Guid.NewGuid(),
 				tileId = tileId,
 				coordinate = new Coordinate
 				{
-					latitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6), // Round off for the client to be happy
-					longitude = Math.Round(longitude + (random.NextDouble() * 2 - 1) * radius, 6)
+					latitude = randomLatitude,
+					longitude = randomLongitude
 				},
 				spawnTime = currentTime,
-				expirationTime = currentTime.AddMinutes(10), //Packet captures show that typically earth keeps Tappables around for 10 minutes
-				type = "Tappable", // who wouldve guessed?
+				expirationTime = currentTime.AddMinutes(10),
+				type = "Tappable",
 				icon = type,
 				metadata = new LocationResponse.Metadata
 				{
 					rarity = rarity,
-					rewardId = version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
+					rewardId = version4Generator.NewUuid().ToString()
 				},
-				encounterMetadata = null, //working captured responses have this, its fine
+				encounterMetadata = null,
 				tappableMetadata = new LocationResponse.TappableMetadata
 				{
-					rarity = rarity //assuming this and the above need to allign. Why have 2 occurances? who knows.
+					rarity = rarity
 				}
 			};
 
+			Log.Debug($"\x1b[32mTapable has been successfully created\x1b[0m"); // Green color for success
+
+			// Generate rewards for the tappable
 			var rewards = GenerateRewardsForTappable(tappable.icon);
 
-			var storage = new LocationResponse.ActiveLocationStorage {location = tappable, rewards = rewards};
-
-			StateSingleton.Instance.activeTappables.Add(tappable.id, storage);
+			// Store the tappable and its rewards
+			StoreTappable(tappable, rewards);
 
 			return tappable;
+		}
+
+		private void StoreTappable(LocationResponse.ActiveLocation tappable, Rewards rewards)
+		{
+			var storage = new LocationResponse.ActiveLocationStorage { location = tappable, rewards = rewards };
+			StateSingleton.Instance.activeTappables.Add(tappable.id, storage);
+			Log.Information($"Active tappables count: {StateSingleton.Instance.activeTappables.Count}");
 		}
 
 		public static TappableResponse RedeemTappableForPlayer(string playerId, TappableRequest request)
@@ -180,7 +295,7 @@ namespace ProjectEarthServerAPI.Util
 			}
 			catch (Exception e)
 			{
-				Log.Error("[Tappables] no json file for tappable type " + type + " exists in data/tappables. Using backup of dirt (f0617d6a-c35a-5177-fcf2-95f67d79196d)");
+				Log.Error("[Tappables] no json file for tappable type " + type + " exists in data/tappables. Using backup of dirt (f0617d6a-c35a-5177-fcf2-95f67d79196d). Error:" + e);
 				Guid dirtId = Guid.Parse("f0617d6a-c35a-5177-fcf2-95f67d79196d");
 				var dirtReward = new Rewards { 
 					Inventory = new RewardComponent[1] { new RewardComponent { Id = dirtId, Amount = 1 } }, 
@@ -233,11 +348,12 @@ namespace ProjectEarthServerAPI.Util
 		{
 			if (radius == -1.0) radius = StateSingleton.Instance.config.tappableSpawnRadius;
 			var maxCoordinates = new Coordinate {latitude = lat + radius, longitude = lon + radius};
+			var minCoordinates = new Coordinate {latitude = lat - radius, longitude = lon - radius};
 
 			var tappables = StateSingleton.Instance.activeTappables
 				.Where(pred =>
-					(pred.Value.location.coordinate.latitude >= lat && pred.Value.location.coordinate.latitude <= maxCoordinates.latitude)
-					&& (pred.Value.location.coordinate.longitude >= lon && pred.Value.location.coordinate.longitude <= maxCoordinates.longitude))
+					(pred.Value.location.coordinate.latitude >= minCoordinates.latitude && pred.Value.location.coordinate.latitude <= maxCoordinates.latitude)
+					&& (pred.Value.location.coordinate.longitude >= minCoordinates.longitude && pred.Value.location.coordinate.longitude <= maxCoordinates.longitude))
 				.ToDictionary(pred => pred.Key, pred => pred.Value.location).Values.ToList();
 
 			if (tappables.Count <= StateSingleton.Instance.config.maxTappableSpawnAmount)
@@ -254,8 +370,8 @@ namespace ProjectEarthServerAPI.Util
 
 			var encounters = AdventureUtils.GetEncountersForLocation(lat, lon);
 			tappables.AddRange(encounters.Where(pred => 
-					(pred.coordinate.latitude >= lat && pred.coordinate.latitude <= maxCoordinates.latitude)
-					&& (pred.coordinate.longitude >= lon && pred.coordinate.longitude <= maxCoordinates.longitude)).ToList());
+					(pred.coordinate.latitude >= minCoordinates.latitude && pred.coordinate.latitude <= maxCoordinates.latitude)
+					&& (pred.coordinate.longitude >= minCoordinates.longitude && pred.coordinate.longitude <= maxCoordinates.longitude)).ToList());
 
 			return new LocationResponse.Root
 			{

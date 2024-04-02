@@ -34,14 +34,15 @@ namespace ProjectEarthServerAPI.Util
         public int minTappableSpawnAmount { get; set; }
         public int maxTappableSpawnAmount { get; set; }
         public double tappableSpawnRadius { get; set; }
-        
-        //Load method
+		public bool biomeGeneration { get; set; }
 
-        /// <summary>
-        /// Get the server config from the configuration file.
-        /// </summary>
-        /// <returns></returns>
-        public static ServerConfig getFromFile()
+		//Load method
+
+		/// <summary>
+		/// Get the server config from the configuration file.
+		/// </summary>
+		/// <returns></returns>
+		public static ServerConfig getFromFile()
         {
             String file = File.ReadAllText("./data/config/apiconfig.json");
             return JsonConvert.DeserializeObject<ServerConfig>(file);

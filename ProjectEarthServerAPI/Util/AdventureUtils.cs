@@ -54,7 +54,7 @@ namespace ProjectEarthServerAPI.Util
 					rarity = Item.Rarity.Common,
 					rewardId = "genoa:adventure_rewards" 
 				},
-				tileId = Tile.getTileForCoordinates(adventureRequest.coordinate.latitude, adventureRequest.coordinate.longitude),
+				tileId = Tile.GetTileForCoordinates(adventureRequest.coordinate.latitude, adventureRequest.coordinate.longitude),
 				type = "PlayerAdventure"
 			};
 
@@ -99,7 +99,7 @@ namespace ProjectEarthServerAPI.Util
 							rarity = Item.Rarity.Common,
 							rewardId = "genoa:adventure_rewards"//version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
 						},
-						tileId = Tile.getTileForCoordinates(coordinate.latitude, coordinate.longitude),
+						tileId = Tile.GetTileForCoordinates(coordinate.latitude, coordinate.longitude),
 						type = "Encounter"
 					});
 				}
