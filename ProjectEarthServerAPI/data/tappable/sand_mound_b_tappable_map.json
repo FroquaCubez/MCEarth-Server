@@ -1,0 +1,11 @@
+{
+  "tappableID": "genoa:sand_mound_b_tappable_map",
+  "rarity": "Common",
+  "dropTable": {
+    "5b81110c-1152-d4d4-a7c6-849fe93795d8": {
+      "chance": 100,
+      "min": 1,
+      "max": 4
+    }
+  }
+}

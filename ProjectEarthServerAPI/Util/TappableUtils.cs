@@ -56,6 +56,12 @@ namespace ProjectEarthServerAPI.Util
 			"genoa:stone_mound_c_tappable_map"
 		};
 
+		public static string[] TappableBeach = new[]
+{
+			"genoa:sand_mound_a_tappable_map", "genoa:sand_mound_b_tappable_map",
+			"genoa:sand_mound_c_tappable_map"
+		};
+
 		public static string[] TappableWater = new[]
 		{
 			"genoa:squid_tappable_map"
@@ -135,7 +141,7 @@ namespace ProjectEarthServerAPI.Util
 				string tappableBiome = Biome.GetTappableBiomeForCoordinates(randomLatitude, randomLongitude).ToString();
 				Log.Debug($"Tappable Biome in ({randomLatitude}, {randomLongitude}): {tappableBiome}");
 
-				if (random.NextDouble() < 0.05)
+				if (random.NextDouble() < 0.005)
 				{
 					type = "genoa:chest_tappable_map";
 
@@ -168,6 +174,12 @@ namespace ProjectEarthServerAPI.Util
 				else if (tappableBiome == "Water")
 				{
 					type ??= TappableWater[random.Next(0, TappableWater.Length)];
+
+					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
+				}
+				else if (tappableBiome == "Beach")
+				{
+					type ??= TappableBeach[random.Next(0, TappableBeach.Length)];
 
 					return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
 				}
