@@ -17,5 +17,6 @@
 	"EncounterLocationsFileLocation": "./data/encounterLocations.json",
 	"mixTappableSpawnAmount": 5,
 	"maxTappableSpawnAmount": 20,
-	"tappableSpawnRadius": 0.001
+	"tappableSpawnRadius": 0.001,
+	"biomeGeneration": false // Custom Generation. Needs Tile Server!!
 }
