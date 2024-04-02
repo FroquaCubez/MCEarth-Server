@@ -25,7 +25,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-        dotnet-options: '--global-property EnableWindowsTargeting=true'
+    - name: Restore NuGet Packages
+      run: dotnet restore
     - name: Build
       run: dotnet publish -r ${{ matrix.TAG }} -p:PublishSingleFile=true -c Release --no-restore
     - name: Upload Build Result
