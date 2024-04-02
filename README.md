@@ -6,7 +6,8 @@
 
 The API implementation is **NOT complete**, which means that not all of the game features might work as expected.
 
-Thanks to [jackcaver](https://github.com/jackcaver) for its fork
+Thanks to [jackcaver](https://github.com/jackcaver). 🙌
+Thanks to [BitcoderCZ](https://github.com/BitcoderCZ). 🙌
 Special thanks to [LukeFZ](https://github.com/LukeFZ) for providing all of the necessary data for recovering missing features 🙌
 
 ## What does this component do? 🤔
