@@ -38,7 +38,7 @@ The core API handles the bulk of game functionality - pretty much everything tha
 To start, ensure that you have built copies of all the required components downloaded:
 
 - A built copy of the Api (you are in this repo), which you can get from [GitHub Actions](https://github.com/andiricum2/ProjectEarthApi/actions/workflows/build.yml)
-- You'll need the Modified Minecraft Earth resource pack file with new mobs, renamed to `vanilla.zip` and placed in the `data/resourcepacks`. You can procure the resourcepack from [here](https://file.io/PYjLnMGrA0Yn).
+- You'll need the Modified Minecraft Earth resource pack file with new mobs, download the `vanilla.zip` and placed in the `data/resourcepacks`. You can procure the resourcepack from [here](https://github.com/andiricum2/MC-Earth-Resourcepack/releases/latest).
 - Our fork of [Cloudburst](https://github.com/Project-Earth-Team/Server). Builds of this can be found [here](https://ci.rtm516.co.uk/job/ProjectEarth/job/Server/job/earth-inventory/). This jar can be located elsewhere from the Api things.
 - Run Cloudburst once to generate the file structure.
 - In the plugins folder, you'll need [GenoaPlugin](https://github.com/jackcaver/GenoaPlugin), and [GenoaAllocatorPlugin](https://github.com/jackcaver/GenoaAllocatorPlugin). The CI for this can be found [here](https://github.com/jackcaver/GenoaPlugin/actions/workflows/CI.yml) and [here](https://github.com/jackcaver/GenoaAllocatorPlugin/actions/workflows/CI.yml). **Note: make sure to rename your GenoaAllocatorPlugin.jar to ZGenoaAllocatorPlugin.jar, or you will run into issues with class loading** 
