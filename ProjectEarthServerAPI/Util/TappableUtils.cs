@@ -27,7 +27,7 @@ namespace ProjectEarthServerAPI.Util
 			"genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:tree_oak_a_tappable_map",
 			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
 			"genoa:tree_spruce_a_tappable_map", "genoa:chest_tappable_map", "genoa:sheep_tappable_map",
-			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map"
+			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map", "genoa:squid_tappable_map"
 		};
 
 		public static string[] TappableGrass = new[]
