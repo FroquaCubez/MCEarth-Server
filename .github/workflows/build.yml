@@ -1,8 +1,8 @@
 name: Build
 
 on:
-  push:
-    branches: [ "master" ]
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -11,23 +11,25 @@ jobs:
     
     strategy:
       matrix:
-        include:
-          - TAG: linux-x64
-          - TAG: linux-arm
-          - TAG: win-x86
+        TAG:
+          - linux-x64
+          - linux-arm
+          - win-x86
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v4
       with:
         submodules: recursive
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: '8.x'
+        dotnet-options: '--global-property EnableWindowsTargeting=true'
     - name: Build
-      run: dotnet publish -r ${{ matrix.TAG }} -p:PublishSingleFile=true -c Release -nowarn:CS8632,CS0168,CS0162,CS1998
+      run: dotnet publish -r ${{ matrix.TAG }} -p:PublishSingleFile=true -c Release --no-restore
     - name: Upload Build Result
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.TAG }}
-        path: ./ProjectEarthServerAPI/bin/Release/net5.0/${{ matrix.TAG }}/publish
+        name: ${{ matrix.TAG }}-build
+        path: ./ProjectEarthServerAPI/bin/Release/net8.0/${{ matrix.TAG }}/publish
