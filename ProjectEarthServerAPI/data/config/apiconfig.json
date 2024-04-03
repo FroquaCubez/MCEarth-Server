@@ -18,5 +18,6 @@
 	"mixTappableSpawnAmount": 5,
 	"maxTappableSpawnAmount": 20,
 	"tappableSpawnRadius": 0.001,
+	"tappableExpirationTime": 10, // In Minutes
 	"biomeGeneration": false // Custom Generation. Needs Tile Server!!
 }
