@@ -222,7 +222,7 @@ namespace ProjectEarthServerAPI.Util
 					longitude = randomLongitude
 				},
 				spawnTime = currentTime,
-				expirationTime = currentTime.AddMinutes(10),
+				expirationTime = currentTime.AddMinutes(StateSingleton.Instance.config.tappableExpirationTime),
 				type = "Tappable",
 				icon = type,
 				metadata = new LocationResponse.Metadata
@@ -254,6 +254,31 @@ namespace ProjectEarthServerAPI.Util
 			StateSingleton.Instance.activeTappables.Add(tappable.id, storage);
 			Log.Information($"Active tappables count: {StateSingleton.Instance.activeTappables.Count}");
 		}
+
+		public static void RemoveExpiredTappables()
+		{
+			var currentTime = DateTime.UtcNow;
+			var tappablesToRemove = new List<Guid>();
+
+			foreach (var kvp in StateSingleton.Instance.activeTappables)
+			{
+				var tappable = kvp.Value.location;
+				//Log.Debug($"Current time: {currentTime} - Expiration time: {tappable.expirationTime}");
+				if (tappable.expirationTime <= currentTime)
+				{
+					tappablesToRemove.Add(kvp.Key);
+				}
+			}
+
+			// Remove expired tappables from the dictionary
+			foreach (var tappableId in tappablesToRemove)
+			{
+				StateSingleton.Instance.activeTappables.Remove(tappableId);
+			}
+
+			Log.Information($"Removed {tappablesToRemove.Count} expired tappables.");
+		}
+
 
 		public static TappableResponse RedeemTappableForPlayer(string playerId, TappableRequest request)
 		{
@@ -358,6 +383,8 @@ namespace ProjectEarthServerAPI.Util
 
 		public static LocationResponse.Root GetActiveLocations(double lat, double lon, double radius = -1.0)
 		{
+
+			RemoveExpiredTappables();
 			if (radius == -1.0) radius = StateSingleton.Instance.config.tappableSpawnRadius;
 			var maxCoordinates = new Coordinate {latitude = lat + radius, longitude = lon + radius};
 			var minCoordinates = new Coordinate {latitude = lat - radius, longitude = lon - radius};
