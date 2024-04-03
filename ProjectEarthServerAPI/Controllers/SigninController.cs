@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
 using Serilog;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {

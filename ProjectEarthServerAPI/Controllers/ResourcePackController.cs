@@ -7,6 +7,8 @@ using System.IO;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using Serilog;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Http;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -56,7 +58,7 @@ namespace ProjectEarthServerAPI.Controllers
 
 			byte[] fileData = System.IO.File.ReadAllBytes(resourcePackFilePath); //Namespaces
 			var cd = new System.Net.Mime.ContentDisposition {FileName = "dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35", Inline = true};
-			Response.Headers.Add("Content-Disposition", cd.ToString());
+			Response.Headers.Append("Content-Disposition", cd.ToString());
 
 
 			return File(fileData, "application/octet-stream", "dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35");

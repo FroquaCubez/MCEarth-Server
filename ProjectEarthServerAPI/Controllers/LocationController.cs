@@ -7,6 +7,7 @@ using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using ProjectEarthServerAPI.Models.Features;
 using Uma.Uuid;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {

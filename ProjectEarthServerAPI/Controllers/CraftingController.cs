@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Player;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {

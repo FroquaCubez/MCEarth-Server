@@ -12,6 +12,7 @@ using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Util;
 using Serilog;
 using ProjectEarthServerAPI.Models.Multiplayer.Adventure;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {

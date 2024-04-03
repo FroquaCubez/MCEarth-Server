@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
 using Serilog;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {

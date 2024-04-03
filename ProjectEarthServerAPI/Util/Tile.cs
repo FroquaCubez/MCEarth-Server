@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using Serilog;
+using SkiaSharp;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -144,7 +145,7 @@ namespace ProjectEarthServerAPI.Util
 				using HttpClient httpClient = new HttpClient();
 				byte[] imageData = httpClient.GetByteArrayAsync(tilePath).Result;
 				using MemoryStream memoryStream = new MemoryStream(imageData);
-				using Bitmap tileImage = new Bitmap(memoryStream);
+				SKBitmap tileImage = SKBitmap.Decode(memoryStream);
 				{
 					// Verificar que las coordenadas estén dentro de los límites de la imagen
 					string pixel = Tile.GetPixelForCoordinates(lat, lon);
@@ -155,8 +156,9 @@ namespace ProjectEarthServerAPI.Util
 					string[] parts = pixel.Split('_');
 					int pixelX = int.Parse(parts[0]);
 					int pixelY = int.Parse(parts[1]);
-					Color pixelColor = tileImage.GetPixel(pixelX, pixelY);
-					Log.Debug("Pixel Color: " + pixelColor.ToString() + " in pixel " + pixel);
+					SKColor pixelColor = tileImage.GetPixel(pixelX, pixelY);
+                    System.Drawing.Color systemColor = System.Drawing.Color.FromArgb(pixelColor.Alpha, pixelColor.Red, pixelColor.Green, pixelColor.Blue);
+					Log.Debug("Pixel Color: " + systemColor.ToString() + " in pixel " + pixel);
 
 					// Mapeo de colores hexadecimales a biomas
 					Dictionary<Color, Type> colorBiomeMap = new Dictionary<Color, Type>
@@ -169,12 +171,12 @@ namespace ProjectEarthServerAPI.Util
 							{ Color.FromArgb(255,255,255), Type.Plain },
 							{ Color.FromArgb(238,238,238), Type.Building },
 							{ Color.FromArgb(170,170,170), Type.ChildrenPark },
-							{ Color.FromArgb(241,241,241), Type.Forest },
+							{ Color.FromArgb(221,221,221), Type.Forest },
                             // Agregar más mapeos de colores y biomas según sea necesario
                         };
 
 					// Buscar el color en el mapeo y devolver el bioma correspondiente
-					if (colorBiomeMap.TryGetValue(pixelColor, out Type value))
+					if (colorBiomeMap.TryGetValue(systemColor, out Type value))
 					{
 						return value;
 					}

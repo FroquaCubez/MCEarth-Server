@@ -13,8 +13,16 @@ namespace ProjectEarthServerAPI.Authentication
 {
 	public class GenoaAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
-		public GenoaAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock) { }
+		public GenoaAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+			: base(options, logger, encoder)
+		{
+			if (options == null)
+			{
+				throw new ArgumentNullException(nameof(options));
+			}
+		}
 
+		#pragma warning disable CS1998 // Warning disable because YES
 		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
 			// skip authentication if endpoint has [AllowAnonymous] attribute
@@ -33,7 +41,7 @@ namespace ProjectEarthServerAPI.Authentication
 			try
 			{
 				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-				if (authHeader.Scheme.Equals("Genoa"))
+				if (authHeader.Scheme.Equals("Genoa", StringComparison.OrdinalIgnoreCase))
 				{
 					id = authHeader.Parameter;
 				}
@@ -47,7 +55,7 @@ namespace ProjectEarthServerAPI.Authentication
 				return AuthenticateResult.Fail("Invalid Authorization Header");
 			}
 
-			var claims = new[] {new Claim(ClaimTypes.NameIdentifier, id),};
+			var claims = new[] { new Claim(ClaimTypes.NameIdentifier, id) };
 
 			var identity = new ClaimsIdentity(claims, Scheme.Name);
 			var principal = new ClaimsPrincipal(identity);

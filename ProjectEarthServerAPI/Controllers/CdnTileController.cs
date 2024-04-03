@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using System.IO;
 using ProjectEarthServerAPI.Util;
 using ProjectEarthServerAPI.Models;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Http;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -34,7 +36,7 @@ namespace ProjectEarthServerAPI.Controllers
 			//String targetTilePath = $"./data/tiles/creeper_tile.png";
 			byte[] fileData = System.IO.File.ReadAllBytes(targetTilePath); //Namespaces
 			var cd = new System.Net.Mime.ContentDisposition {FileName = tilePos1 + "_" + tilePos2 + "_16.png", Inline = true};
-			Response.Headers.Add("Content-Disposition", cd.ToString());
+			Response.Headers.Append("Content-Disposition", cd.ToString());
 
 
 			return File(fileData, "application/octet-stream", tilePos1 + "_" + tilePos2 + "_16.png");

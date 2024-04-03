@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Serilog;
 using Uma.Uuid;
 using System.Collections.Generic;
+using Asp.Versioning;
 
 namespace ProjectEarthServerAPI.Controllers
 {
