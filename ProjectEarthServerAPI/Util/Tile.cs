@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Serilog;
 using SkiaSharp;
 
@@ -91,107 +93,126 @@ namespace ProjectEarthServerAPI.Util
         }
     }
 
-    public class Biome
-    {
-        public enum Type
-        {
-            Water,
-            Grass,
-            Beach,
-            Street,
-            Road,
-            Plain,
-            Building,
-            ChildrenPark,
-            Forest,
-            Unknown
-        }
+	public class Biome
+	{
+		public enum Type
+		{
+			Water,
+			Grass,
+			Beach,
+			Street,
+			Road,
+			Plain,
+			Building,
+			ChildrenPark,
+			Forest,
+			Unknown
+		}
 
-        public static Type GetTappableBiomeForCoordinates(double lat, double lon)
-        {
-            string tilePath = ""; // Definir tilePath fuera del bloque if
+		public static Type GetTappableBiomeForCoordinates(double lat, double lon)
+		{
+			string tilePath = ""; // Definir tilePath fuera del bloque if
+			string pathType;
 
-            // Obtener el tile para las coordenadas dadas
-            string tile = Tile.GetTileForCoordinates(lat, lon);
+			// Obtener el tile para las coordenadas dadas
+			string tile = Tile.GetTileForCoordinates(lat, lon);
 
-            // Separar el tile en partes utilizando el carácter '_'
-            string[] tileParts = tile.Split('_');
+			// Separar el tile en partes utilizando el carácter '_'
+			string[] tileParts = tile.Split('_');
 
-            // Asegurarse de que haya dos partes (latitud y longitud)
-            if (tileParts.Length == 2)
-            {
-                // Asignar cada parte a las variables correspondientes
-                string tile_lat = tileParts[0];
-                string tile_lon = tileParts[1];
+			// Asegurarse de que haya dos partes (latitud y longitud)
+			if (tileParts.Length == 2)
+			{
+				// Asignar cada parte a las variables correspondientes
+				string tile_lat = tileParts[0];
+				string tile_lon = tileParts[1];
 
-                // Construir la ruta del archivo de imagen
-                tilePath = StateSingleton.Instance.config.tileServerUrl + "/styles/mc-earth/16/" + tile_lat + "/" + tile_lon + ".png";
+				// Construir la ruta del archivo de imagen
+				string localFilePath = $"./data/tiles/16/{tile_lat}/{tile_lat}_{tile_lon}_16.png";
+				Log.Debug(localFilePath);
 
-                // Ahora, tile_lat y tile_lon contienen la latitud y longitud del tile respectivamente.
-                // Y tilePath contiene la URL del archivo de imagen.
-            }
-            else
-            {
-                // Manejar el caso en el que el formato del tile no sea válido
-                Console.WriteLine("El formato del tile no es válido.");
-            }
-
-            // Log the tile path for debugging purposes
-            //Console.WriteLine("Tile Path: " + tilePath);
-
-            try
-            {
-				// Descargar la imagen desde la URL
-				using HttpClient httpClient = new HttpClient();
-				byte[] imageData = httpClient.GetByteArrayAsync(tilePath).Result;
-				using MemoryStream memoryStream = new MemoryStream(imageData);
-				SKBitmap tileImage = SKBitmap.Decode(memoryStream);
+				if (File.Exists(localFilePath))
 				{
-					// Verificar que las coordenadas estén dentro de los límites de la imagen
-					string pixel = Tile.GetPixelForCoordinates(lat, lon);
-					//Log.Debug(lon.ToString() + "" + lat.ToString());
-					//Log.Debug(pixel.ToString());
+					pathType = "Local";
+					tilePath = localFilePath;
+				}
+				else
+				{
+					pathType = "Server";
+					// If the file doesn't exist, use the alternative tile path from the server
+					tilePath = $"{StateSingleton.Instance.config.tileServerUrl}/styles/mc-earth/16/{tile_lat}/{tile_lon}.png";
+				}
 
-					// Obtener el color del píxel en las coordenadas dadas
-					string[] parts = pixel.Split('_');
-					int pixelX = int.Parse(parts[0]);
-					int pixelY = int.Parse(parts[1]);
-					SKColor pixelColor = tileImage.GetPixel(pixelX, pixelY);
-                    System.Drawing.Color systemColor = System.Drawing.Color.FromArgb(pixelColor.Alpha, pixelColor.Red, pixelColor.Green, pixelColor.Blue);
-					Log.Debug("Pixel Color: " + systemColor.ToString() + " in pixel " + pixel);
+				// Ahora, tile_lat y tile_lon contienen la latitud y longitud del tile respectivamente.
+				// Y tilePath contiene la URL del archivo de imagen.
+			}
+			else
+			{
+				// Manejar el caso en el que el formato del tile no sea válido
+				Console.WriteLine("El formato del tile no es válido.");
+				return Type.Unknown;
+			}
 
-					// Mapeo de colores hexadecimales a biomas
-					Dictionary<Color, Type> colorBiomeMap = new Dictionary<Color, Type>
-						{
-							{ Color.FromArgb(153,153,153), Type.Water },
-							{ Color.FromArgb(204,204,204), Type.Grass },
-							{ Color.FromArgb(102,102,102), Type.Beach },
-							{ Color.FromArgb(51,51,51), Type.Street },
-							{ Color.FromArgb(34,34,34), Type.Road },
-							{ Color.FromArgb(255,255,255), Type.Plain },
-							{ Color.FromArgb(238,238,238), Type.Building },
-							{ Color.FromArgb(170,170,170), Type.ChildrenPark },
-							{ Color.FromArgb(221,221,221), Type.Forest },
-                            // Agregar más mapeos de colores y biomas según sea necesario
-                        };
+			try
+			{
+				byte[] imageData;
 
-					// Buscar el color en el mapeo y devolver el bioma correspondiente
-					if (colorBiomeMap.TryGetValue(systemColor, out Type value))
-					{
-						return value;
-					}
-					else
-					{
-						return Type.Unknown;
-					}
+				if (pathType == "Server")
+				{
+					using HttpClient httpClient = new HttpClient();
+					imageData = httpClient.GetByteArrayAsync(tilePath).Result;
+				}
+				else if (pathType == "Local")
+				{
+					imageData = File.ReadAllBytes(tilePath);
+				}
+				else
+				{
+					// Handle unknown path types
+					return Type.Unknown;
+				}
+
+				using MemoryStream memoryStream = new MemoryStream(imageData);
+				using SKBitmap tileImage = SKBitmap.Decode(memoryStream);
+
+				// Verificar que las coordenadas estén dentro de los límites de la imagen
+				string pixel = Tile.GetPixelForCoordinates(lat, lon);
+				string[] parts = pixel.Split('_');
+				int pixelX = int.Parse(parts[0]);
+				int pixelY = int.Parse(parts[1]);
+				SKColor pixelColor = tileImage.GetPixel(pixelX, pixelY);
+
+				// Mapeo de colores hexadecimales a biomas
+				Dictionary<SKColor, Type> colorBiomeMap = new Dictionary<SKColor, Type>
+			{
+				{ new SKColor(153, 153, 153), Type.Water },
+				{ new SKColor(204, 204, 204), Type.Grass },
+				{ new SKColor(102, 102, 102), Type.Beach },
+				{ new SKColor(51, 51, 51), Type.Street },
+				{ new SKColor(34, 34, 34), Type.Road },
+				{ new SKColor(255, 255, 255), Type.Plain },
+				{ new SKColor(238, 238, 238), Type.Building },
+				{ new SKColor(170, 170, 170), Type.ChildrenPark },
+				{ new SKColor(221, 221, 221), Type.Forest },
+                // Agregar más mapeos de colores y biomas según sea necesario
+            };
+
+				// Buscar el color en el mapeo y devolver el bioma correspondiente
+				if (colorBiomeMap.TryGetValue(pixelColor, out Type value))
+				{
+					return value;
+				}
+				else
+				{
+					return Type.Unknown;
 				}
 			}
-            catch (Exception ex)
-            {
-                // Manejar otras excepciones
-                Console.WriteLine("Error al procesar la imagen del azulejo: " + ex.Message);
-                return Type.Unknown;
-            }
-        }
-    }
+			catch (Exception ex)
+			{
+				// Manejar otras excepciones
+				Console.WriteLine("Error al procesar la imagen del azulejo: " + ex.Message);
+				return Type.Unknown;
+			}
+		}
+	}
 }
