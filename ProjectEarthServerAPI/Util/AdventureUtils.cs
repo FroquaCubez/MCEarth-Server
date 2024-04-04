@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -61,26 +62,27 @@ namespace ProjectEarthServerAPI.Util
 			return new AdventureRequestResult {result = adventureLocation, updates = new Updates()};
 		}
 
-		public static List<Coordinate> ReadEncounterLocations() {
+		public static List<LocationResponse.ActiveLocation> ReadEncounterLocations() {
 			string filepath = StateSingleton.Instance.config.EncounterLocationsFileLocation;
 			string encouterLocationsJson = File.ReadAllText(filepath);
-            return JsonConvert.DeserializeObject<List<Coordinate>>(encouterLocationsJson);
+            return JsonConvert.DeserializeObject<List<LocationResponse.ActiveLocation>>(encouterLocationsJson);
         }
 
 		public static List<LocationResponse.ActiveLocation> GetEncountersForLocation(double lat, double lon) {
-			List<Coordinate> encouterLocations = ReadEncounterLocations();
+			List<LocationResponse.ActiveLocation> encounterLocations = ReadEncounterLocations();
 
 			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
 
-			foreach (Coordinate coordinate in encouterLocations)
+			foreach (LocationResponse.ActiveLocation encounter in encounterLocations)
 			{
-				if (Encounters.FirstOrDefault(match => match.coordinate.latitude == coordinate.latitude && match.coordinate.longitude == coordinate.longitude) == null) {
+				if (Encounters.FirstOrDefault(match => match.coordinate.latitude == encounter.coordinate.latitude && match.coordinate.longitude == encounter.coordinate.longitude) == null) {
 					string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
 					Guid selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
 					DateTime currentTime = DateTime.UtcNow;
+					DateTime expirationTime = encounter.expirationTime;
 					Encounters.Add(new LocationResponse.ActiveLocation
 					{
-						coordinate = coordinate,
+						coordinate = encounter.coordinate,
 						encounterMetadata = new EncounterMetadata
 						{
 							anchorId = "",
@@ -90,7 +92,7 @@ namespace ProjectEarthServerAPI.Util
 							locationId = selectedAdventureId,
 							worldId = selectedAdventureId // TODO: Replace this with actual adventure id
 						},
-						expirationTime = currentTime.Add(TimeSpan.FromMinutes(10.00)),
+						expirationTime = expirationTime,
 						spawnTime = currentTime,
 						icon = selectedAdventureIcon,
 						id = selectedAdventureId,
@@ -99,7 +101,7 @@ namespace ProjectEarthServerAPI.Util
 							rarity = Item.Rarity.Common,
 							rewardId = "genoa:adventure_rewards"//version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
 						},
-						tileId = Tile.GetTileForCoordinates(coordinate.latitude, coordinate.longitude),
+						tileId = Tile.GetTileForCoordinates(encounter.coordinate.latitude, encounter.coordinate.longitude),
 						type = "Encounter"
 					});
 				}
