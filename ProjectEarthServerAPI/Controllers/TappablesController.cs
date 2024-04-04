@@ -30,7 +30,7 @@ namespace ProjectEarthServerAPI.Controllers
 
 			var req = JsonConvert.DeserializeObject<TappableRequest>(body);
 
-			var response = TappableUtils.RedeemTappableForPlayer(authtoken, req);
+			var response = TappableRewards.RedeemTappableForPlayer(authtoken, req);
 
 			return Content(JsonConvert.SerializeObject(response), "application/json");
 		}

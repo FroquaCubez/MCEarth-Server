@@ -30,12 +30,13 @@ namespace ProjectEarthServerAPI.Util
 
 		public CatalogResponse catalog { get; set; }
 		public ServerConfig config { get; set; }
+		public TappableGenerationConfig TappableGenerationConfig { get; set; }
 		public Recipes recipes { get; set; }
 		public SettingsResponse settings { get; set; }
 		public ChallengeStorage challengeStorage { get; set; }
 		public ProductCatalogResponse productCatalog { get; set; }
 
-		public Dictionary<string, TappableUtils.TappableLootTable> tappableData { get; set; }
+		public Dictionary<string, TappableLootTable> tappableData { get; set; }
 
 		/// <summary>
 		/// A reference of guid <-> id, so that we can keep track of a tappable from spawn to redeem

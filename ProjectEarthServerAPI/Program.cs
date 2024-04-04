@@ -31,12 +31,13 @@ namespace ProjectEarthServerAPI
 
 			//Initialize state singleton from config
 			StateSingleton.Instance.config = ServerConfig.getFromFile();
+			StateSingleton.Instance.TappableGenerationConfig = TappableGenerationConfig.getFromFile();
 			StateSingleton.Instance.catalog = CatalogResponse.FromFiles(StateSingleton.Instance.config.itemsFolderLocation, StateSingleton.Instance.config.efficiencyCategoriesFolderLocation);
 			StateSingleton.Instance.recipes = Recipes.FromFile(StateSingleton.Instance.config.recipesFileLocation);
 			StateSingleton.Instance.settings = SettingsResponse.FromFile(StateSingleton.Instance.config.settingsFileLocation);
 			StateSingleton.Instance.challengeStorage = ChallengeStorage.FromFiles(StateSingleton.Instance.config.challengeStorageFolderLocation);
 			StateSingleton.Instance.productCatalog = ProductCatalogResponse.FromFile(StateSingleton.Instance.config.productCatalogFileLocation);
-			StateSingleton.Instance.tappableData = TappableUtils.loadAllTappableSets();
+			StateSingleton.Instance.tappableData = TappableGeneration.loadAllTappableSets();
 			StateSingleton.Instance.activeTappables = new();
 			StateSingleton.Instance.levels = ProfileUtils.readLevelDictionary();
 			StateSingleton.Instance.shopItems = ShopUtils.readShopItemDictionary();
