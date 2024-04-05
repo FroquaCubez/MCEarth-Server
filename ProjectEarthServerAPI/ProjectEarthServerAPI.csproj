@@ -24,5 +24,8 @@
   <ItemGroup>
     <Folder Include="data\NewFolder\" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\Panel\" />
+  </ItemGroup>
 
 </Project>

@@ -20,54 +20,6 @@ namespace ProjectEarthServerAPI.Util
 	{
 		private static Version4Generator version4Generator = new Version4Generator();
 
-		// TODO: Consider turning this into a dictionary (or pull it out to a separate file) and building out a spawn-weight system? 
-		public static string[] TappableTypes = new[]
-		{
-			"genoa:stone_mound_a_tappable_map", "genoa:stone_mound_b_tappable_map",
-			"genoa:stone_mound_c_tappable_map", "genoa:grass_mound_a_tappable_map",
-			"genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:tree_oak_a_tappable_map",
-			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
-			"genoa:tree_spruce_a_tappable_map", "genoa:chest_tappable_map", "genoa:sheep_tappable_map",
-			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map", "genoa:squid_tappable_map"
-		};
-
-		public static string[] TappableGrass = new[]
-		{
-			"genoa:grass_mound_a_tappable_map", "genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:tree_oak_a_tappable_map",
-			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
-			"genoa:tree_spruce_a_tappable_map"
-		};
-
-		public static string[] TappableForest = new[]
-		{
-			"genoa:tree_oak_a_tappable_map",
-			"genoa:tree_oak_b_tappable_map", "genoa:tree_oak_c_tappable_map", "genoa:tree_birch_a_tappable_map",
-			"genoa:tree_spruce_a_tappable_map"
-		};
-
-		public static string[] TappablePlain = new[]
-		{
-			"genoa:grass_mound_a_tappable_map", "genoa:grass_mound_b_tappable_map", "genoa:grass_mound_c_tappable_map", "genoa:sheep_tappable_map",
-			"genoa:cow_tappable_map", "genoa:pig_tappable_map", "genoa:chicken_tappable_map"
-		};
-
-		public static string[] TappableBuilding = new[]
-		{
-			"genoa:stone_mound_a_tappable_map", "genoa:stone_mound_b_tappable_map",
-			"genoa:stone_mound_c_tappable_map"
-		};
-
-		public static string[] TappableBeach = new[]
-{
-			"genoa:sand_mound_a_tappable_map", "genoa:sand_mound_b_tappable_map",
-			"genoa:sand_mound_c_tappable_map"
-		};
-
-		public static string[] TappableWater = new[]
-		{
-			"genoa:squid_tappable_map"
-		};
-
 		private static Random random = new Random();
 
 		public static Dictionary<string, TappableLootTable> loadAllTappableSets()
@@ -79,7 +31,7 @@ namespace ProjectEarthServerAPI.Util
 			{
 				TappableLootTable table = JsonConvert.DeserializeObject<TappableLootTable>(File.ReadAllText(file));
 				tappableData.Add(table.tappableID, table);
-				Log.Information($"Loaded {table.dropTable.Count} drops for tappable ID {table.tappableID} | Path: {file}");
+				//Log.Information($"Loaded {table.dropTable.Count} drops for tappable ID {table.tappableID} | Path: {file}");
 			}
 
 			return tappableData;
@@ -103,11 +55,11 @@ namespace ProjectEarthServerAPI.Util
 			var currentTime = DateTime.UtcNow;
 
 			// Debugging: Log current time
-			Log.Debug($"Current time: {currentTime}");
+			//Log.Debug($"Current time: {currentTime}");
 
 			//Nab tile loc
 			string tileId = Tile.GetTileForCoordinates(latitude, longitude);
-			Log.Debug($"Tile ID for coordinates ({latitude}, {longitude}): {tileId}");
+			//Log.Debug($"Tile ID for coordinates ({latitude}, {longitude}): {tileId}");
 
 			// Modificar las coordenadas para LocationResponse.ActiveLocation
 			double randomLatitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6);
@@ -120,7 +72,7 @@ namespace ProjectEarthServerAPI.Util
 			if (StateSingleton.Instance.config.biomeGeneration)
 			{
 				string tappableBiome = Biome.GetTappableBiomeForCoordinates(randomLatitude, randomLongitude).ToString();
-				Log.Debug($"Tappable Biome in ({randomLatitude}, {randomLongitude}): {tappableBiome}");
+				//Log.Debug($"Tappable Biome in ({randomLatitude}, {randomLongitude}): {tappableBiome}");
 
 				if (random.NextDouble() < 0.005)
 				{
@@ -176,7 +128,7 @@ namespace ProjectEarthServerAPI.Util
 		public LocationResponse.ActiveLocation CreateTappable(string type, string tileId, double randomLatitude, double randomLongitude, DateTime currentTime)
 		{
 			// Obtain the type of tappable if not specified
-			Log.Debug($"Selected tappable type: \x1b[35m{type}\x1b[0m"); // Magenta color for better visibility
+			//Log.Debug($"Selected tappable type: \x1b[35m{type}\x1b[0m"); // Magenta color for better visibility
 
 			// Check if the tappable type is present in the tappables data
 			if (!StateSingleton.Instance.tappableData.TryGetValue(type, out TappableLootTable tappableData))
@@ -184,9 +136,6 @@ namespace ProjectEarthServerAPI.Util
 				Log.Error("[Tappables] Tappable rarity was not found for tappable type \x1b[31m" + type + "\x1b[0m. Using common"); // Red color for error
 				return null; // Return null if the tappable type is not present
 			}
-
-			string[] grassTappables = StateSingleton.Instance.TappableGenerationConfig.TappableGrass;
-			Log.Debug(string.Join(", ", grassTappables));
 
 			// Get the rarity of the tappable type
 			Item.Rarity rarity = tappableData.rarity;
@@ -217,7 +166,7 @@ namespace ProjectEarthServerAPI.Util
 				}
 			};
 
-			Log.Debug($"\x1b[32mTapable has been successfully created\x1b[0m"); // Green color for success
+			//Log.Debug($"\x1b[32mTapable has been successfully created\x1b[0m"); // Green color for success
 
 			// Generate rewards for the tappable
 			var rewards = TappableRewards.GenerateRewardsForTappable(tappable.icon);

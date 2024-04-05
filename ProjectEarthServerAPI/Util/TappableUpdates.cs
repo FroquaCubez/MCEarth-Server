@@ -57,14 +57,13 @@ namespace ProjectEarthServerAPI.Util
 
 			if (tappables.Count <= StateSingleton.Instance.config.maxTappableSpawnAmount)
 			{
-				var count = random.Next(StateSingleton.Instance.config.minTappableSpawnAmount,
-					StateSingleton.Instance.config.maxTappableSpawnAmount);
-				count -= tappables.Count;
-				for (; count > 0; count--)
-				{
-					var tappable = TappableGeneration.CreateTappableInRadiusOfCoordinates(lat, lon, radius);
-					tappables.Add(tappable);
-				}
+				var count = StateSingleton.Instance.config.maxTappableSpawnAmount - tappables.Count;
+
+				var newTappables = Enumerable.Range(0, count)
+											  .Select(_ => TappableGeneration.CreateTappableInRadiusOfCoordinates(lat, lon, radius))
+											  .ToList();
+
+				tappables.AddRange(newTappables);
 			}
 
 			var encounters = AdventureUtils.GetEncountersForLocation(lat, lon);

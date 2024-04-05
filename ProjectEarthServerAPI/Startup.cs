@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Authentication;
 using ProjectEarthServerAPI.Authentication;
 using Serilog;
 using Serilog.Events;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace ProjectEarthServerAPI
 {
@@ -36,6 +38,8 @@ namespace ProjectEarthServerAPI
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+
+			services.AddControllersWithViews();
 
 			services.AddResponseCompression(options =>
 			{
@@ -93,13 +97,25 @@ namespace ProjectEarthServerAPI
 
 			app.UseResponseCaching();
 
-			app.UseResponseCompression();
+			if (!env.IsDevelopment())
+			{
+				app.UseResponseCompression();
+			}
+			
+			app.UseStaticFiles(new StaticFileOptions
+			{
+				FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Panel", "public")),
+				RequestPath = "/panel"
+			});
 
 			//app.UseSession();
 
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
+				endpoints.MapControllerRoute(
+					name: "panel",
+					pattern: "Panel/{controller=Panel}/{action=Index}/{id?}");
 			});
 		}
 	}

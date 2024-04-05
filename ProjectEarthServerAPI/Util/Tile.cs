@@ -129,7 +129,6 @@ namespace ProjectEarthServerAPI.Util
 
 				// Construir la ruta del archivo de imagen
 				string localFilePath = $"./data/tiles/16/{tile_lat}/{tile_lat}_{tile_lon}_16.png";
-				Log.Debug(localFilePath);
 
 				if (File.Exists(localFilePath))
 				{
@@ -149,7 +148,7 @@ namespace ProjectEarthServerAPI.Util
 			else
 			{
 				// Manejar el caso en el que el formato del tile no sea válido
-				Console.WriteLine("El formato del tile no es válido.");
+				Console.WriteLine("Tile format is not valid");
 				return Type.Unknown;
 			}
 
@@ -210,7 +209,7 @@ namespace ProjectEarthServerAPI.Util
 			catch (Exception ex)
 			{
 				// Manejar otras excepciones
-				Console.WriteLine("Error al procesar la imagen del azulejo: " + ex.Message);
+				Log.Error("Error processing tile image: " + ex.Message);
 				return Type.Unknown;
 			}
 		}
