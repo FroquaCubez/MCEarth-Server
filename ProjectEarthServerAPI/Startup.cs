@@ -101,12 +101,6 @@ namespace ProjectEarthServerAPI
 			{
 				app.UseResponseCompression();
 			}
-			
-			app.UseStaticFiles(new StaticFileOptions
-			{
-				FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Panel", "public")),
-				RequestPath = "/panel"
-			});
 
 			//app.UseSession();
 
