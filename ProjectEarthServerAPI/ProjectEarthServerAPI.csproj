@@ -5,7 +5,13 @@
     <RuntimeIdentifiers>linux-x64;linux-arm;win-x64;win-x86</RuntimeIdentifiers>
     <StartupObject>ProjectEarthServerAPI.Program</StartupObject>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <OutputType>Exe</OutputType>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="icon.ico" />
+  </ItemGroup>
 
 <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" NoWarn="NU1605" />
