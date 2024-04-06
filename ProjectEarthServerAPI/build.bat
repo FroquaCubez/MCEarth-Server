@@ -1,1 +1,1 @@
-dotnet build --nologo /clp:ErrorsOnly
+dotnet build
