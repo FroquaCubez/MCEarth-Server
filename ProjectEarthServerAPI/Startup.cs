@@ -1,27 +1,16 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Asp.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using System.Transactions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authentication;
 using ProjectEarthServerAPI.Authentication;
 using Serilog;
 using Serilog.Events;
-using Microsoft.Extensions.FileProviders;
-using System.IO;
 
 namespace ProjectEarthServerAPI
 {
