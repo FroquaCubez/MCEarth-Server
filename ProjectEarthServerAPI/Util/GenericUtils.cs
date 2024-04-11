@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Newtonsoft.Json;
-using ProjectEarthServerAPI.Models.Player;
 using Serilog;
 
 namespace ProjectEarthServerAPI.Util

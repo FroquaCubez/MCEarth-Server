@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Player;
 using Serilog;
-using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Util
 {
     public class TokenUtils
     {
-        private static readonly Version4Generator Version4Generator = new();
-
         public static Dictionary<Guid, Token> GetSigninTokens(string playerId)
         {
             var origTokens = ReadTokens(playerId);

@@ -13,25 +13,19 @@ using ProjectEarthServerAPI.Util;
 using Serilog;
 using ProjectEarthServerAPI.Models.Multiplayer.Adventure;
 using Asp.Versioning;
+using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Controllers
 {
 	public class MultiplayerController : Controller
 	{
-		#region Buildplates
 
 		[Authorize]
 		[ApiVersion("1.1")]
 		[Route("1/api/v{version:apiVersion}/multiplayer/buildplate/{buildplateId}/instances")]
 		public async Task<IActionResult> PostCreateInstance(string buildplateId)
 		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
-
-			var response = await MultiplayerUtils.CreateBuildplateInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
+			return await ProcessInstanceRequest(buildplateId, MultiplayerUtils.CreateBuildplateInstance);
 		}
 
 		[Authorize]
@@ -39,13 +33,20 @@ namespace ProjectEarthServerAPI.Controllers
 		[Route("1/api/v{version:apiVersion}/multiplayer/buildplate/{buildplateId}/play/instances")]
 		public async Task<IActionResult> PostCreatePlayInstance(string buildplateId)
 		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
+			return await ProcessInstanceRequest(buildplateId, MultiplayerUtils.CreateBuildplatePlayInstance);
+		}
 
-			var response = await MultiplayerUtils.CreateBuildplatePlayInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
+		private async Task<IActionResult> ProcessInstanceRequest(string buildplateId, Func<string, string, Coordinate, Task<BuildplateServerResponse>> createInstanceFunc)
+		{
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			using (var streamReader = new StreamReader(Request.Body))
+			{
+				var body = await streamReader.ReadToEndAsync();
+				var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
+
+				var response = await createInstanceFunc(authtoken, buildplateId, parsedRequest.playerCoordinate);
+				return Content(JsonConvert.SerializeObject(response), "application/json");
+			}
 		}
 
 		[Authorize]
@@ -75,94 +76,79 @@ namespace ProjectEarthServerAPI.Controllers
 		public IActionResult GetSharedBuildplate(string buildplateId)
 		{
 			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var response = BuildplateUtils.ReadSharedBuildplate(buildplateId);
+			var response = BuildplateUtils.ReadSharedBuildplate(buildplateId);
 			return Content(JsonConvert.SerializeObject(response), "application/json");
 		}
 
 		[Authorize]
 		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/buildplate/shared/{buildplateId}/play/instances")]
-		public async Task<IActionResult> PostSharedBuildplateCreatePlayInstance(string buildplateId)
+		[Route("1/api/v{version:apiVersion}/multiplayer")]
+		public class MultiplayerBuildplateController : ControllerBase
 		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<SharedBuildplateServerRequest>(body);
-			
-			var response = await MultiplayerUtils.CreateSharedBuildplatePlayInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+			private string GetAuthToken() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-		[Authorize]
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/join/instances")]
-		public async Task<IActionResult> PostMultiplayerJoinInstance()
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<MultiplayerJoinRequest>(body);
-			Log.Information($"[{authtoken}]: Trying to join buildplate instance: id {parsedRequest.id}");
-			
-			var response = MultiplayerUtils.GetServerInstance(parsedRequest.id);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+			private async Task<T> DeserializeRequestBody<T>()
+			{
+				using var streamReader = new StreamReader(Request.Body);
+				var body = await streamReader.ReadToEndAsync();
+				return JsonConvert.DeserializeObject<T>(body);
+			}
 
-		#endregion
+			private IActionResult SerializeResponse(object response)
+			{
+				return Content(JsonConvert.SerializeObject(response), "application/json");
+			}
 
-		[Authorize]
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/encounters/{adventureid}/instances")]
-		public async Task<IActionResult> PostCreateEncounterInstance(string adventureid)
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<EncounterServerRequest>(body);
+			[HttpPost("buildplate/shared/{buildplateId}/play/instances")]
+			public async Task<IActionResult> PostSharedBuildplateCreatePlayInstance(string buildplateId)
+			{
+				string authtoken = GetAuthToken();
+				var parsedRequest = await DeserializeRequestBody<SharedBuildplateServerRequest>();
 
-			var response = await MultiplayerUtils.CreateAdventureInstance(authtoken, adventureid, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+				var response = await MultiplayerUtils.CreateSharedBuildplatePlayInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
+				return SerializeResponse(response);
+			}
 
-		[Authorize]
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/adventures/{adventureid}/instances")]
-		public async Task<IActionResult> PostCreateAdventureInstance(string adventureid)
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
+			[HttpPost("join/instances")]
+			public async Task<IActionResult> PostMultiplayerJoinInstance()
+			{
+				string authtoken = GetAuthToken();
+				var parsedRequest = await DeserializeRequestBody<MultiplayerJoinRequest>();
+				Log.Information($"[{authtoken}]: Trying to join buildplate instance: id {parsedRequest.id}");
 
-			var response = await MultiplayerUtils.CreateAdventureInstance(authtoken, adventureid, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+				var response = MultiplayerUtils.GetServerInstance(parsedRequest.id);
+				return SerializeResponse(response);
+			}
 
-		[Authorize]
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/player/adventures/{adventureid}/instances")]
-		public async Task<IActionResult> PostCreatePlayerAdventureInstance(string adventureid)
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
+			[HttpPost("encounters/{adventureid}/instances")]
+			public async Task<IActionResult> PostCreateEncounterInstance(string adventureid)
+			{
+				string authtoken = GetAuthToken();
+				var parsedRequest = await DeserializeRequestBody<EncounterServerRequest>();
 
-			var response = await MultiplayerUtils.CreateAdventureInstance(authtoken, adventureid, parsedRequest.playerCoordinate);
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+				var response = await MultiplayerUtils.CreateAdventureInstance(authtoken, adventureid, parsedRequest.playerCoordinate);
+				return SerializeResponse(response);
+			}
 
-		[Authorize]
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/multiplayer/encounters/state")]
-		public async Task<IActionResult> EncounterState()
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
-			var request = JsonConvert.DeserializeObject<Dictionary<Guid, string>>(body);
-			var response = new EncounterStateResponse { result = new Dictionary<Guid, ActiveEncounterStateMetadata> { {Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779"), new ActiveEncounterStateMetadata { ActiveEncounterState = ActiveEncounterState.Dirty}}}, expiration=null, continuationToken=null, updates= null };
-			return Content(JsonConvert.SerializeObject(response), "application/json");
+			[HttpPost("adventures/{adventureid}/instances")]
+			[HttpPost("player/adventures/{adventureid}/instances")]
+			public async Task<IActionResult> PostCreateAdventureInstance(string adventureid)
+			{
+				string authtoken = GetAuthToken();
+				var parsedRequest = await DeserializeRequestBody<BuildplateServerRequest>();
+
+				var response = await MultiplayerUtils.CreateAdventureInstance(authtoken, adventureid, parsedRequest.playerCoordinate);
+				return SerializeResponse(response);
+			}
+
+			[HttpPost("encounters/state")]
+			public async Task<IActionResult> EncounterState()
+			{
+				string authtoken = GetAuthToken();
+				var request = await DeserializeRequestBody<Dictionary<Guid, string>>();
+				var response = new EncounterStateResponse { result = new Dictionary<Guid, ActiveEncounterStateMetadata> { { Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779"), new ActiveEncounterStateMetadata { ActiveEncounterState = ActiveEncounterState.Dirty } } }, expiration = null, continuationToken = null, updates = null };
+				return SerializeResponse(response);
+			}
 		}
 
 		[Authorize]

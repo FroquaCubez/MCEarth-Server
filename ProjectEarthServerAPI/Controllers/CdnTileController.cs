@@ -1,15 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.IO;
 using ProjectEarthServerAPI.Util;
-using ProjectEarthServerAPI.Models;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
+using System.Net.Mime;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -20,22 +15,22 @@ namespace ProjectEarthServerAPI.Controllers
 	{
 		public IActionResult Get(int _, int tilePos1, int tilePos2) // _ used because we dont care :|
 		{
-			String targetTilePath = $"./data/tiles/16/{tilePos1}/{tilePos1}_{tilePos2}_16.png";
+			string targetTilePath = Path.Combine("./data/tiles/16/", $"{tilePos1}/{tilePos1}_{tilePos2}_16.png");
 
 			if (!System.IO.File.Exists(targetTilePath))
 			{
-				var boo = Tile.DownloadTile(tilePos1, tilePos2, @"./data/tiles/16/");
+				var boo = Tile.DownloadTile(tilePos1, tilePos2, "./data/tiles/16/");
 
 				//Lets download that lovely tile now, Shall we?
 				if (boo == false)
 				{
-					return Content("hi!");
+					return BadRequest("Error occurred while downloading tile.");
 				} // Error 400 on Tile download error
 			}
 
 			//String targetTilePath = $"./data/tiles/creeper_tile.png";
 			byte[] fileData = System.IO.File.ReadAllBytes(targetTilePath); //Namespaces
-			var cd = new System.Net.Mime.ContentDisposition {FileName = tilePos1 + "_" + tilePos2 + "_16.png", Inline = true};
+			var cd = new ContentDisposition {FileName = tilePos1 + "_" + tilePos2 + "_16.png", Inline = true};
 			Response.Headers.Append("Content-Disposition", cd.ToString());
 
 

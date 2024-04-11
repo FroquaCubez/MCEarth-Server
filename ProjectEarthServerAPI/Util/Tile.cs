@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Drawing;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Serilog;
 using SkiaSharp;
 

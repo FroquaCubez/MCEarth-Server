@@ -9,7 +9,6 @@ using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Serilog;
-using Uma.Uuid;
 using System.Collections.Generic;
 using Asp.Versioning;
 

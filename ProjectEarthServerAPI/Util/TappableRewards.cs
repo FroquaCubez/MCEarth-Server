@@ -5,7 +5,6 @@ using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Player;
 using Serilog;
-using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Util
 {

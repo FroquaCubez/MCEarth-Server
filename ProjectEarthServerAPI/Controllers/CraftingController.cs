@@ -23,24 +23,22 @@ namespace ProjectEarthServerAPI.Controllers
 		{
 			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
+			using (StreamReader reader = new StreamReader(Request.Body))
+			{
+				var body = await reader.ReadToEndAsync();
+				var req = JsonConvert.DeserializeObject<CraftingRequest>(body);
+				var craftingJob = await Task.Run(() => CraftingUtils.StartCraftingJob(authtoken, slot, req));
 
-			var req = JsonConvert.DeserializeObject<CraftingRequest>(body);
+				var updateResponse = new CraftingUpdates { updates = new Updates() };
+				var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-			var craftingJob = CraftingUtils.StartCraftingJob(authtoken, slot, req);
+				updateResponse.updates.crafting = nextStreamId;
+				updateResponse.updates.inventory = nextStreamId;
 
-
-			var updateResponse = new CraftingUpdates {updates = new Updates()};
-
-			var nextStreamId = GenericUtils.GetNextStreamVersion();
-
-			updateResponse.updates.crafting = nextStreamId;
-			updateResponse.updates.inventory = nextStreamId;
-
-			return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
-			//return Accepted(Content(returnUpdates, "application/json"));
+				return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
+			}
 		}
+
 
 		[ApiVersion("1.1")]
 		[Route("1/api/v{version:apiVersion}/crafting/finish/price")]
@@ -56,13 +54,14 @@ namespace ProjectEarthServerAPI.Controllers
 		[Route("1/api/v{version:apiVersion}/crafting/{slot}/finish")]
 		public async Task<IActionResult> PostCraftingFinish(int slot)
 		{
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
+			using (var reader = new StreamReader(Request.Body))
+			{
+				var body = await reader.ReadToEndAsync();
+				var req = JsonConvert.DeserializeObject<FinishCraftingJobRequest>(body);
 
-			var req = JsonConvert.DeserializeObject<FinishCraftingJobRequest>(body);
-
-			var result = CraftingUtils.FinishCraftingJobNow(User.FindFirstValue(ClaimTypes.NameIdentifier), slot, req.expectedPurchasePrice);
-			return Content(JsonConvert.SerializeObject(result), "application/json");
+				var result = CraftingUtils.FinishCraftingJobNow(User.FindFirstValue(ClaimTypes.NameIdentifier), slot, req.expectedPurchasePrice);
+				return Content(JsonConvert.SerializeObject(result), "application/json");
+			}
 		}
 
 		[ApiVersion("1.1")]

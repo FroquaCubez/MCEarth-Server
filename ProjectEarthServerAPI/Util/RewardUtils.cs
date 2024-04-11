@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using ProjectEarthServerAPI.Models;
+﻿using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Util
 {

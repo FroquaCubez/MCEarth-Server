@@ -6,7 +6,6 @@ using ProjectEarthServerAPI.Models.Buildplate;
 using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Models.Player;
-using ProjectEarthServerAPI.Util;
 using Serilog;
 using Uma.Uuid;
 
