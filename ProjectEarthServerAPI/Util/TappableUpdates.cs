@@ -88,7 +88,7 @@ namespace ProjectEarthServerAPI.Util
 					tappables.AddRange(newTappables);
 				}
 
-				if (1 == 1)
+				if (new Random().Next(1, 101) == 1)
 				{
 
 					DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
