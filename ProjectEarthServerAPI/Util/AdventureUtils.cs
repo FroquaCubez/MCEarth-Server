@@ -105,5 +105,41 @@ namespace ProjectEarthServerAPI.Util
 			}
 			return Encounters;
 		}
+
+		public static void CreateEncounterLocation(double latitude, double longitude, double radius, DateTime expirationTime)
+		{
+			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
+			Guid selectedAdventureId = Guid.NewGuid(); // Generate a new unique ID for the encounter
+
+			double randomLatitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6);
+			double randomLongitude = Math.Round(longitude + (random.NextDouble() * 2 - 1) * radius, 6);
+
+			Encounters.Add(new LocationResponse.ActiveLocation
+			{
+				coordinate = new Coordinate { latitude = randomLatitude, longitude = randomLongitude },
+				encounterMetadata = new EncounterMetadata
+				{
+					anchorId = "",
+					anchorState = "Off",
+					augmentedImageSetId = "",
+					encounterType = EncounterType.Short16X16Hostile, // You may adjust this based on your encounter type
+					locationId = selectedAdventureId,
+					worldId = selectedAdventureId // Set to the same ID as locationId for simplicity
+				},
+				expirationTime = expirationTime,
+				spawnTime = DateTime.UtcNow,
+				icon = selectedAdventureIcon,
+				id = selectedAdventureId,
+				metadata = new LocationResponse.Metadata
+				{
+					rarity = Item.Rarity.Common, // You may adjust the rarity as needed
+					rewardId = "genoa:adventure_rewards" // You may adjust the reward ID as needed
+				},
+				tileId = Tile.GetTileForCoordinates(randomLatitude, randomLongitude),
+				type = "Encounter"
+			});
+		}
+
 	}
 }
+

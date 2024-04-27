@@ -1,16 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC Earth Panel</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Web Panel</h1>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">MC Earth Panel</span>
+        </div>
+    </nav>
 
-    <div>Live Tappable Count: @ViewBag.TappableCount</div>
-    <div>Biome Generation: @ViewBag.BiomeGeneration</div>
-    <div>Generation Radius: @ViewBag.SpawnRadius</div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Interactive Earth Map</h5>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Statistics</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Live Tappable Count: @ViewBag.TappableCount</li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Biome Generation: @ViewBag.BiomeGeneration</li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">Generation Radius: @ViewBag.SpawnRadius</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Custom JS -->
+    <script src="js/app.js"></script>
+    <script>
+        mostrarTocables();
+    </script>
 </body>
 </html>

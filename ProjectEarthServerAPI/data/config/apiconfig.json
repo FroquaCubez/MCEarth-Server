@@ -1,7 +1,7 @@
 {
-	"baseServerIP": "https://p.projectearth.dev",
+	"baseServerIP": "http://localhost:80",
 	"useBaseServerIP": false,
-	"tileServerUrl": "https://tiles.projectearth.dev",
+	"tileServerUrl": "http://localhost:8080",
 	"playfabTitleId": "20CA2",
 	"itemsFolderLocation": "./data/items/",
 	"efficiencyCategoriesFolderLocation": "./data/efficiency_categories/",
@@ -15,9 +15,12 @@
 	"ShopItemDictionaryFileLocation": "./data/shopItemDictionary.json",
 	"LevelDictionaryFileLocation": "./data/levelDictionary.json",
 	"EncounterLocationsFileLocation": "./data/encounterLocations.json",
-	"mixTappableSpawnAmount": 5,
-	"maxTappableSpawnAmount": 20,
-	"tappableSpawnRadius": 0.001,
-	"tappableExpirationTime": 10, // In Minutes
-	"biomeGeneration": false // Custom Generation. Needs Tile Server!!
+	"mixTappableSpawnAmount": 10,
+	"maxTappableSpawnAmount": 100,
+	"tappableSpawnRadius": 0.003,
+	"tappableExpirationTime": 10, // Minutes
+	"biomeGeneration": true, // Custom Generation. Needs Tile Server!!
+	"multiplayerAuthKeys": {
+		"YOURCLOUDBURSTSERVERPUBLICIP": "YOURKEY"
+	}
 }

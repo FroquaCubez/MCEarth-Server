@@ -32,50 +32,91 @@ namespace ProjectEarthServerAPI.Util
 				StateSingleton.Instance.activeTappables.Remove(tappableId);
 			}
 
-			Log.Information($"Removed {tappablesToRemove.Count} expired tappables.");
+			Log.Debug($"Removed {tappablesToRemove.Count} expired tappables.");
 		}
 
 		public static LocationResponse.Root GetActiveLocations(double lat, double lon, double radius = -1.0)
 		{
-
 			RemoveExpiredTappables();
-			if (radius == -1.0) radius = StateSingleton.Instance.config.tappableSpawnRadius;
-			var maxCoordinates = new Coordinate { latitude = lat + radius, longitude = lon + radius };
-			var minCoordinates = new Coordinate { latitude = lat - radius, longitude = lon - radius };
 
-			var tappables = StateSingleton.Instance.activeTappables
-				.Where(pred =>
-					(pred.Value.location.coordinate.latitude >= minCoordinates.latitude && pred.Value.location.coordinate.latitude <= maxCoordinates.latitude)
-					&& (pred.Value.location.coordinate.longitude >= minCoordinates.longitude && pred.Value.location.coordinate.longitude <= maxCoordinates.longitude))
-				.ToDictionary(pred => pred.Key, pred => pred.Value.location).Values.ToList();
-
-			if (tappables.Count <= StateSingleton.Instance.config.maxTappableSpawnAmount)
+			if (lat == 0 && lon == 0) // Verifica si latitud y longitud son 0 en lugar de null
 			{
-				var count = StateSingleton.Instance.config.maxTappableSpawnAmount - tappables.Count;
+				var globaltappables = StateSingleton.Instance.activeTappables
+					.ToDictionary(pred => pred.Key, pred => pred.Value.location)
+					.Values.ToList();
 
-				var newTappables = Enumerable.Range(0, count)
-											  .Select(_ => TappableGeneration.CreateTappableInRadiusOfCoordinates(lat, lon, radius))
-											  .ToList();
+				var globalencounters = AdventureUtils.GetEncountersForLocation(lat, lon);
+				globaltappables.AddRange(globalencounters.ToList());
 
-				tappables.AddRange(newTappables);
+				return new LocationResponse.Root
+				{
+					result = new LocationResponse.Result
+					{
+						killSwitchedTileIds = new List<object>(), // No he visto esta lista utilizada, ¿es para depuración?
+						activeLocations = globaltappables,
+					},
+					expiration = null,
+					continuationToken = null,
+					updates = new Updates()
+				};
 			}
 
-			var encounters = AdventureUtils.GetEncountersForLocation(lat, lon);
-			tappables.AddRange(encounters.Where(pred =>
-					(pred.coordinate.latitude >= minCoordinates.latitude && pred.coordinate.latitude <= maxCoordinates.latitude)
-					&& (pred.coordinate.longitude >= minCoordinates.longitude && pred.coordinate.longitude <= maxCoordinates.longitude)).ToList());
+			else { 
 
-			return new LocationResponse.Root
-			{
-				result = new LocationResponse.Result
+				if (radius == -1.0) radius = StateSingleton.Instance.config.tappableSpawnRadius;
+
+				var maxCoordinates = new Coordinate { latitude = lat + radius, longitude = lon + radius };
+				var minCoordinates = new Coordinate { latitude = lat - radius, longitude = lon - radius };
+
+				var tappables = StateSingleton.Instance.activeTappables
+					.Where(pred =>
+						pred.Value.location.coordinate.latitude >= minCoordinates.latitude &&
+						pred.Value.location.coordinate.latitude <= maxCoordinates.latitude &&
+						pred.Value.location.coordinate.longitude >= minCoordinates.longitude &&
+						pred.Value.location.coordinate.longitude <= maxCoordinates.longitude)
+					.Select(pred => pred.Value.location)
+					.ToList();
+
+				if (tappables.Count < StateSingleton.Instance.config.maxTappableSpawnAmount) // Cambiado <= por <
 				{
-					killSwitchedTileIds = new List<object> { }, //havent seen this used. Debugging thing maybe?
-					activeLocations = tappables,
-				},
-				expiration = null,
-				continuationToken = null,
-				updates = new Updates()
-			};
+					var count = StateSingleton.Instance.config.maxTappableSpawnAmount - tappables.Count;
+
+					var newTappables = Enumerable.Range(0, count)
+						.Select(_ => TappableGeneration.CreateTappableInRadiusOfCoordinates(lat, lon, radius))
+						.ToList();
+
+					tappables.AddRange(newTappables);
+				}
+
+				if (1 == 1)
+				{
+
+					DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
+
+					AdventureUtils.CreateEncounterLocation(lat, lon, radius, expirationTime);
+				}
+
+				var encounters = AdventureUtils.GetEncountersForLocation(lat, lon);
+				tappables.AddRange(encounters.Where(pred =>
+					pred.coordinate.latitude >= minCoordinates.latitude &&
+					pred.coordinate.latitude <= maxCoordinates.latitude &&
+					pred.coordinate.longitude >= minCoordinates.longitude &&
+					pred.coordinate.longitude <= maxCoordinates.longitude));
+
+				return new LocationResponse.Root
+				{
+					result = new LocationResponse.Result
+					{
+						killSwitchedTileIds = new List<object>(), // No he visto esta lista utilizada, ¿es para depuración?
+						activeLocations = tappables,
+					},
+					expiration = null,
+					continuationToken = null,
+					updates = new Updates()
+				};
+
+			}
 		}
+
 	}
 }

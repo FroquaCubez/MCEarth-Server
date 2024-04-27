@@ -12,7 +12,6 @@ using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-	[Authorize]
 	[ApiVersion("1.1")]
 	public class AdventureScrollsController : Controller
 	{

@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Content Include="icon.ico" />
+    <Content Include="Views\Panel\panel.cs" />
   </ItemGroup>
 
 <ItemGroup>
@@ -30,8 +31,12 @@
   <ItemGroup>
     <Folder Include="data\NewFolder\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Panel\" />
-  </ItemGroup>
+
+	<ItemGroup>
+    <Content Update="wwwroot\**\*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+</ItemGroup>
+
 
 </Project>

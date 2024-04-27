@@ -3,10 +3,11 @@ using Newtonsoft.Json;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
+using System;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-	[Authorize]
 	[ApiVersion("1.1")]
 	[Route("1/api/v{version:apiVersion}/locations/{latitude}/{longitude}")]
 	public class LocationController : Controller

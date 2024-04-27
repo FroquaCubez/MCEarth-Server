@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authentication;
 using ProjectEarthServerAPI.Authentication;
 using Serilog;
 using Serilog.Events;
+using ProjectEarthServerAPI.Controllers;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace ProjectEarthServerAPI
 {
@@ -43,6 +46,9 @@ namespace ProjectEarthServerAPI
 				config.AssumeDefaultVersionWhenUnspecified = true;
 				config.ReportApiVersions = true;
 			});
+
+			services.AddHttpClient();
+			services.AddControllersWithViews();
 
 			services.AddAuthentication("GenoaAuth")
 				.AddScheme<AuthenticationSchemeOptions, GenoaAuthenticationHandler>("GenoaAuth", null);
@@ -82,24 +88,26 @@ namespace ProjectEarthServerAPI
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-            app.UseWebSockets(new WebSocketOptions{KeepAliveInterval = TransactionManager.MaximumTimeout});
+			app.UseStaticFiles();
+
+			app.UseEndpoints(endpoints =>
+			{
+				endpoints.MapControllerRoute(
+					name: "default",
+					pattern: "{controller=Home}/{action=Index}/{id?}");
+			});
+
+
+			app.UseWebSockets(new WebSocketOptions{KeepAliveInterval = TransactionManager.MaximumTimeout});
 
 			app.UseResponseCaching();
+
 
 			if (!env.IsDevelopment())
 			{
 				app.UseResponseCompression();
 			}
 
-			//app.UseSession();
-
-			app.UseEndpoints(endpoints =>
-			{
-				endpoints.MapControllers();
-				endpoints.MapControllerRoute(
-					name: "panel",
-					pattern: "Panel/{controller=Panel}/{action=Index}/{id?}");
-			});
 		}
 	}
 }

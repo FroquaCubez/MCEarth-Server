@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectEarthServerAPI.Util;
 using System.Linq;
 
-namespace ProjectEarthServerAPI.Panel
+namespace ProjectEarthServerAPI.Views
 {
 	public class PanelController : Controller
 	{
