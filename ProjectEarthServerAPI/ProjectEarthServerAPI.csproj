@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Content Include="icon.ico" />
-    <Content Include="Views\Panel\panel.cs" />
+    <Content Include="WebControllers\panel.cs" />
   </ItemGroup>
 
 <ItemGroup>

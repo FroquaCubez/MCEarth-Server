@@ -14,6 +14,9 @@ using Serilog.Events;
 using ProjectEarthServerAPI.Controllers;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace ProjectEarthServerAPI
 {
@@ -31,7 +34,25 @@ namespace ProjectEarthServerAPI
 		{
 			services.AddControllers();
 
+			services.AddSession(options =>
+			{
+				options.IdleTimeout = TimeSpan.FromDays(30);
+				options.Cookie.HttpOnly = true; 
+				options.Cookie.IsEssential = true;
+			});
+
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("LoggedIn", policy =>
+				{
+					policy.RequireAuthenticatedUser();
+					policy.RequireClaim("Session", "loggedIn");
+				});
+			});
+
 			services.AddControllersWithViews();
+
+			services.AddHttpContextAccessor();
 
 			services.AddResponseCompression(options =>
 			{
@@ -48,7 +69,6 @@ namespace ProjectEarthServerAPI
 			});
 
 			services.AddHttpClient();
-			services.AddControllersWithViews();
 
 			services.AddAuthentication("GenoaAuth")
 				.AddScheme<AuthenticationSchemeOptions, GenoaAuthenticationHandler>("GenoaAuth", null);
@@ -83,6 +103,8 @@ namespace ProjectEarthServerAPI
 			app.UseETagger();
 			//app.UseHttpsRedirection();
 
+			app.UseSession();
+
 			app.UseRouting();
 
 			app.UseAuthentication();
@@ -90,15 +112,28 @@ namespace ProjectEarthServerAPI
 
 			app.UseStaticFiles();
 
-			app.UseEndpoints(endpoints =>
+			var provider = new FileExtensionContentTypeProvider();
+			provider.Mappings[".avif"] = "image/avif";
+			app.UseStaticFiles(new StaticFileOptions
 			{
-				endpoints.MapControllerRoute(
-					name: "default",
-					pattern: "{controller=Home}/{action=Index}/{id?}");
+				FileProvider = new PhysicalFileProvider(
+					Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "backgrounds")),
+				RequestPath = "/images/backgrounds",
+				ContentTypeProvider = provider
 			});
 
+			if (StateSingleton.Instance.config.webPanel == true)
+			{
+				app.UseEndpoints(endpoints =>
+				{
+					endpoints.MapControllerRoute(
+						name: "default",
+						pattern: "{controller=Home}/{action=Index}/{id?}");
+				});
+			}
 
-			app.UseWebSockets(new WebSocketOptions{KeepAliveInterval = TransactionManager.MaximumTimeout});
+
+			app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TransactionManager.MaximumTimeout });
 
 			app.UseResponseCaching();
 
@@ -109,5 +144,6 @@ namespace ProjectEarthServerAPI
 			}
 
 		}
+
 	}
 }

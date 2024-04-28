@@ -36,6 +36,8 @@ namespace ProjectEarthServerAPI.Util
 		public bool biomeGeneration { get; set; }
 		public int publicAdventureSpawnPercentage { get; set; }
 		public int publicAdventuresLimit { get; set; }
+		public bool webPanel { get; set; }
+		public string webPanelPassword { get; set; }
 
 		//Load method
 
