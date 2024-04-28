@@ -34,6 +34,8 @@ namespace ProjectEarthServerAPI.Util
         public double tappableSpawnRadius { get; set; }
 		public int tappableExpirationTime { get; set; }
 		public bool biomeGeneration { get; set; }
+		public int publicAdventureSpawnPercentage { get; set; }
+		public int publicAdventuresLimit { get; set; }
 
 		//Load method
 

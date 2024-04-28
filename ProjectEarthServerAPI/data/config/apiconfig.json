@@ -20,6 +20,8 @@
 	"tappableSpawnRadius": 0.003,
 	"tappableExpirationTime": 10, // Minutes
 	"biomeGeneration": true, // Custom Generation. Needs Tile Server!!
+	"publicAdventureSpawnPercentage": 5, // Percentage of Adventure Spawn rate
+	"publicAdventuresLimit": 2, // Public Adventures Limit
 	"multiplayerAuthKeys": {
 		"YOURCLOUDBURSTSERVERPUBLICIP": "YOURKEY"
 	}

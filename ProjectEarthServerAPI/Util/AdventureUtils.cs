@@ -108,6 +108,8 @@ namespace ProjectEarthServerAPI.Util
 
 		public static void CreateEncounterLocation(double latitude, double longitude, double radius, DateTime expirationTime)
 		{
+			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
+
 			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
 			Guid selectedAdventureId = Guid.NewGuid(); // Generate a new unique ID for the encounter
 
