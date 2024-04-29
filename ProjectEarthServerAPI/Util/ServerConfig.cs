@@ -38,6 +38,7 @@ namespace ProjectEarthServerAPI.Util
 		public int publicAdventuresLimit { get; set; }
 		public bool webPanel { get; set; }
 		public string webPanelPassword { get; set; }
+		public string resourcepack { get; set; }
 
 		//Load method
 
