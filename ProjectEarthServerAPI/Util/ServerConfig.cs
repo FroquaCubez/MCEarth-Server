@@ -39,6 +39,7 @@ namespace ProjectEarthServerAPI.Util
 		public bool webPanel { get; set; }
 		public string webPanelPassword { get; set; }
 		public string resourcepack { get; set; }
+		public string buildplates { get; set; }
 
 		//Load method
 

@@ -14,6 +14,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.IO.Compression;
 
 namespace ProjectEarthServerAPI
 {
@@ -62,21 +63,46 @@ namespace ProjectEarthServerAPI
 			StateSingleton.Instance.shopItems = ShopUtils.readShopItemDictionary();
 
 			string resourcepacksFolderPath = "./data/resourcepacks";
-			string vanillaZipPath = "./data/resourcepacks/vanilla.zip";
+			string buildplatesFolderPath = "./data/buildplates";
+
+			string vanillaZipPath = Path.Combine(resourcepacksFolderPath, "vanilla.zip");
 
 			// Check if the resourcepacks folder exists, if not, create it
 			if (!Directory.Exists(resourcepacksFolderPath))
 			{
 				Directory.CreateDirectory(resourcepacksFolderPath);
-				Log.Debug("Created './data/resourcepacks' folder.");
+				Log.Debug($"Created {resourcepacksFolderPath} folder.");
 			}
-
 			// Check if vanilla.zip exists, if not, download it
 			if (!File.Exists(vanillaZipPath))
 			{
 				string vanillaUrl = StateSingleton.Instance.config.resourcepack;
 				DownloadFile(vanillaUrl, vanillaZipPath);
 				Log.Debug("Downloaded 'vanilla.zip' from {0}.", vanillaUrl);
+			}
+			if (!Directory.Exists(buildplatesFolderPath))
+			{
+				Directory.CreateDirectory(buildplatesFolderPath);
+				Log.Debug($"Created {buildplatesFolderPath} folder.");
+
+				Console.WriteLine("Do you want to download buildplates? (yes/no)");
+				string response = Console.ReadLine();
+
+				if (response.ToLower() == "yes")
+				{
+					// Code to download build plates
+					string buildplatesUrl = StateSingleton.Instance.config.buildplates; ;
+					string buildplatesZipPath = Path.Combine(buildplatesFolderPath, "buildplates.zip");
+					DownloadFile(buildplatesUrl, buildplatesZipPath);
+
+					// Unzip the downloaded file
+					ZipFile.ExtractToDirectory(buildplatesZipPath, buildplatesFolderPath);
+					File.Delete(buildplatesZipPath);
+				}
+				else
+				{
+					// Hi
+				}
 			}
 
 			static void DownloadFile(string url, string outputPath)

@@ -38,6 +38,7 @@ namespace ProjectEarthServerAPI.Util
                 { "webPanel", true },
 				{ "webPanelPassword", "password" },
 				{ "resourcepack", "https://github.com/andiricum2/MC-Earth-Resourcepack/releases/download/v1/vanilla.zip" },
+				{ "buildplates",  "https://github.com/andiricum2/MC-Earth-Buildplates/releases/download/v1/Buildplates.zip" },
 				{ "multiplayerAuthKeys", new Dictionary<string, string>
 					{
 						{ "YOURCLOUDBURSTSERVERPUBLICIP", "YOURKEY" }
