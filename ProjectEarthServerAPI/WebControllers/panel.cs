@@ -43,6 +43,10 @@ namespace ProjectEarthServerAPI.Views
 				ViewBag.TappableCount = StateSingleton.Instance.activeTappables.Count;
 				ViewBag.BiomeGeneration = StateSingleton.Instance.config.biomeGeneration;
 				ViewBag.SpawnRadius = StateSingleton.Instance.config.tappableSpawnRadius;
+				ViewBag.SpawnRadius = StateSingleton.Instance.config.tappableSpawnRadius;
+				ViewBag.AdventuresCount = AdventureUtils.ReadEncounterLocations().Count;
+				ViewBag.PublicAdventuresLimit = StateSingleton.Instance.config.publicAdventuresLimit;
+				ViewBag.AdventureSpawnPercentage = StateSingleton.Instance.config.publicAdventureSpawnPercentage;
 
 				return View();
 			}

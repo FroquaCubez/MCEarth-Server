@@ -37,7 +37,6 @@ namespace ProjectEarthServerAPI.Util
                 { "publicAdventuresLimit", 2 }, // Public Adventures Limit
                 { "webPanel", true },
 				{ "webPanelPassword", "password" },
-				{ "updateMode", false }, // Enable it only once a week to update your api to the latest version
 				{ "resourcepack", "https://github.com/andiricum2/MC-Earth-Resourcepack/releases/download/v1/vanilla.zip" },
 				{ "multiplayerAuthKeys", new Dictionary<string, string>
 					{
