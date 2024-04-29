@@ -106,15 +106,12 @@ namespace ProjectEarthServerAPI.Util
 			return Encounters;
 		}
 
-		public static void CreateEncounterLocation(double latitude, double longitude, double radius, DateTime expirationTime)
+		public static void CreateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
 		{
 			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
 
 			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
 			Guid selectedAdventureId = Guid.NewGuid(); // Generate a new unique ID for the encounter
-
-			double randomLatitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6);
-			double randomLongitude = Math.Round(longitude + (random.NextDouble() * 2 - 1) * radius, 6);
 
 			Encounters.Add(new LocationResponse.ActiveLocation
 			{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
@@ -34,7 +35,7 @@ namespace ProjectEarthServerAPI.Util
 		}
 
 		//double is default set to negative because its *extremely unlikely* someone will set a negative value intentionally, and I can't set it to null.
-		public static LocationResponse.ActiveLocation CreateTappableInRadiusOfCoordinates(double latitude, double longitude, double radius = -1.0)
+		public static LocationResponse.ActiveLocation CreateTappableInRadiusOfCoordinates(double randomLatitude, double randomLongitude)
 		{
 
 			string type = null;
@@ -42,11 +43,6 @@ namespace ProjectEarthServerAPI.Util
 			// Debugging: Log method parameters
 			// Log.Debug($"createTappableInRadiusOfCoordinates called with latitude: {latitude}, longitude: {longitude}, radius: {radius}, type: {type}");
 
-			if (radius == -1.0)
-			{
-				radius = StateSingleton.Instance.config.tappableSpawnRadius;
-				// Log.Information($"Using default radius from config: {radius}");
-			}
 
 			var currentTime = DateTime.UtcNow;
 
@@ -54,12 +50,10 @@ namespace ProjectEarthServerAPI.Util
 			//Log.Debug($"Current time: {currentTime}");
 
 			//Nab tile loc
-			string tileId = Tile.GetTileForCoordinates(latitude, longitude);
+			string tileId = Tile.GetTileForCoordinates(randomLatitude, randomLongitude);
 			//Log.Debug($"Tile ID for coordinates ({latitude}, {longitude}): {tileId}");
 
 			// Modificar las coordenadas para LocationResponse.ActiveLocation
-			double randomLatitude = Math.Round(latitude + (random.NextDouble() * 2 - 1) * radius, 6);
-			double randomLongitude = Math.Round(longitude + (random.NextDouble() * 2 - 1) * radius, 6);
 
 			//Log.Debug($"Biome: {tappableBiome}");
 
@@ -106,7 +100,9 @@ namespace ProjectEarthServerAPI.Util
 					}
 					else
 					{
-						return CreateTappableInRadiusOfCoordinates(latitude, longitude, radius);
+						tappableArray = StateSingleton.Instance.TappableGenerationConfig.TappableTypes;
+						type ??= tappableArray[random.Next(0, tappableArray.Length)];
+						return tappableUtils.CreateTappable(type, tileId, randomLatitude, randomLongitude, currentTime);
 					}
 				}
 
@@ -120,6 +116,7 @@ namespace ProjectEarthServerAPI.Util
 			}
 
 		}
+
 
 		public LocationResponse.ActiveLocation CreateTappable(string type, string tileId, double randomLatitude, double randomLongitude, DateTime currentTime)
 		{

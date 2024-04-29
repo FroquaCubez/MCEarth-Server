@@ -35,7 +35,7 @@ namespace ProjectEarthServerAPI.Util
 			Log.Debug($"Removed {tappablesToRemove.Count} expired tappables.");
 		}
 
-		public static LocationResponse.Root GetActiveLocations(double lat, double lon, double radius = -1.0)
+		public static LocationResponse.Root GetActiveLocations(double lat, double lon, int radius = 1)
 		{
 			RemoveExpiredTappables();
 
@@ -61,32 +61,90 @@ namespace ProjectEarthServerAPI.Util
 				};
 			}
 
-			else { 
+			else
+			{
+				radius = StateSingleton.Instance.config.tappableSpawnRadius;
 
-				if (radius == -1.0) radius = StateSingleton.Instance.config.tappableSpawnRadius;
+				string tileId = Tile.GetTileForCoordinates(lat, lon);
+				string[] parts = tileId.Split('_');
+				double minTileLat = 0;
+				double minTileLon = 0;
+				double maxTileLat = 0;
+				double maxTileLon = 0;
 
-				var maxCoordinates = new Coordinate { latitude = lat + radius, longitude = lon + radius };
-				var minCoordinates = new Coordinate { latitude = lat - radius, longitude = lon - radius };
+				// Parse the first and second parts to integers
+				int TileIdLat = 0;
+				int TileIdLon = 0;
+				if (int.TryParse(parts[0], out TileIdLat) && int.TryParse(parts[1], out TileIdLon))
+				{
+					// Perform the subtraction with radius to get minTileId
+					int minTileIdLat = TileIdLat - radius;
+					int minTileIdLon = TileIdLon - radius;
+					string minTileId = $"{minTileIdLat}_{minTileIdLon}";
+
+					// Perform the addition with radius to get maxTileId
+					int maxTileIdLat = TileIdLat + radius;
+					int maxTileIdLon = TileIdLon + radius;
+					string maxTileId = $"{maxTileIdLat}_{maxTileIdLon}";
+
+					// Get coordinates for minTileId
+					double[][] minTileCoordinates = Tile.GetCoordinatesForTile(minTileId);
+
+					maxTileLat = minTileCoordinates[0][0];
+					minTileLon = minTileCoordinates[0][1];
+
+					// Get coordinates for maxTileId
+					double[][] maxTileCoordinates = Tile.GetCoordinatesForTile(maxTileId);
+
+					minTileLat = maxTileCoordinates[1][0];
+					maxTileLon = maxTileCoordinates[1][1];
+				}
+
+				var maxCoordinates = new Coordinate { latitude = maxTileLat, longitude = maxTileLon };
+				var minCoordinates = new Coordinate { latitude = minTileLat, longitude = minTileLon };
 
 				var tappables = StateSingleton.Instance.activeTappables
-					.Where(pred =>
-						pred.Value.location.coordinate.latitude >= minCoordinates.latitude &&
-						pred.Value.location.coordinate.latitude <= maxCoordinates.latitude &&
-						pred.Value.location.coordinate.longitude >= minCoordinates.longitude &&
-						pred.Value.location.coordinate.longitude <= maxCoordinates.longitude)
-					.Select(pred => pred.Value.location)
-					.ToList();
+				.Where(pred =>
+				pred.Value.location.coordinate.latitude != null)
+				.Select(pred => pred.Value.location)
+				.ToList();
 
-				if (tappables.Count < StateSingleton.Instance.config.maxTappableSpawnAmount) // Cambiado <= por <
+				if (tappables.Count < StateSingleton.Instance.config.maxTappableSpawnAmount)
 				{
-					var count = StateSingleton.Instance.config.maxTappableSpawnAmount - tappables.Count;
+					for (int latLoop = TileIdLat - radius; latLoop <= TileIdLat + radius; latLoop++)
+					{
+						for (int lonLoop = TileIdLon - radius; lonLoop <= TileIdLon + radius; lonLoop++)
+						{
+							string currentTileId = $"{latLoop}_{lonLoop}";
+							// Aquí debes obtener la lista de tappables en el tile actual
+							// Supongamos que tienes una función tappablesInTileId que devuelve la cantidad de tappables en un tile dado
+							var tappableListInTile = StateSingleton.Instance.activeTappables
+								.Where(pred => pred.Value.location.tileId == currentTileId)
+								.ToList();
+							int tappablesInTileId = tappableListInTile.Count;
+							int maxTappablesPerTile = StateSingleton.Instance.config.maxTappablesPerTile;
+							int spawneableTappablesInTile = maxTappablesPerTile - tappablesInTileId;
+							if (spawneableTappablesInTile > 0)
+							{
+								// Generar nuevos tappables en este tile
+								for (int i = 0; i < spawneableTappablesInTile; i++)
+								{
+									double tappableRandomLatitude = minCoordinates.latitude + (random.NextDouble() * (maxCoordinates.latitude - minCoordinates.latitude));
+									double tappableRandomLongitude = minCoordinates.longitude + (random.NextDouble() * (maxCoordinates.longitude - minCoordinates.longitude));
 
-					var newTappables = Enumerable.Range(0, count)
-						.Select(_ => TappableGeneration.CreateTappableInRadiusOfCoordinates(lat, lon, radius))
-						.ToList();
-
-					tappables.AddRange(newTappables);
+									// Crear el nuevo tappable con las coordenadas aleatorias generadas
+									var newTappable = TappableGeneration.CreateTappableInRadiusOfCoordinates(tappableRandomLatitude, tappableRandomLongitude);
+									// Agregar el nuevo tappable a la lista de tappables
+									tappables.Add(newTappable);
+								}
+							}
+						}
+					}
 				}
+
+				double randomLatitude = minCoordinates.latitude + (random.NextDouble() * (maxCoordinates.latitude - minCoordinates.latitude));
+				double randomLongitude = minCoordinates.longitude + (random.NextDouble() * (maxCoordinates.longitude - minCoordinates.longitude));
+
 
 				int randomnumber = new Random().Next(1, 101);
 				if (randomnumber <= StateSingleton.Instance.config.publicAdventureSpawnPercentage && StateSingleton.Instance.config.publicAdventuresLimit > AdventureUtils.ReadEncounterLocations().Count)
@@ -94,7 +152,7 @@ namespace ProjectEarthServerAPI.Util
 
 					DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
 
-					AdventureUtils.CreateEncounterLocation(lat, lon, radius, expirationTime);
+					AdventureUtils.CreateEncounterLocation(randomLatitude, randomLongitude, expirationTime);
 				}
 
 				var encounters = AdventureUtils.GetEncountersForLocation(lat, lon);
@@ -108,7 +166,7 @@ namespace ProjectEarthServerAPI.Util
 				{
 					result = new LocationResponse.Result
 					{
-						killSwitchedTileIds = new List<object>(), // No he visto esta lista utilizada, ¿es para depuración?
+						killSwitchedTileIds = [], // No he visto esta lista utilizada, ¿es para depuración?
 						activeLocations = tappables,
 					},
 					expiration = null,

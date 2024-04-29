@@ -57,7 +57,34 @@ namespace ProjectEarthServerAPI.Util
             return $"{xtile}_{ytile}";
         }
 
-        public static string GetPixelForCoordinates(double lat, double lon)
+		public static double[][] GetCoordinatesForTile(string tileId)
+		{
+			const int zoom = 16;
+
+			string[] parts = tileId.Split('_');
+			if (parts.Length == 2 && int.TryParse(parts[0], out int xtile) && int.TryParse(parts[1], out int ytile))
+			{
+				double lon1 = xtile / Math.Pow(2, zoom) * 360 - 180;
+				double lon2 = (xtile + 1) / Math.Pow(2, zoom) * 360 - 180;
+
+				double lat1 = Math.Atan(Math.Sinh(Math.PI * (1 - 2 * ytile / Math.Pow(2, zoom)))) * 180 / Math.PI;
+				double lat2 = Math.Atan(Math.Sinh(Math.PI * (1 - 2 * (ytile + 1) / Math.Pow(2, zoom)))) * 180 / Math.PI;
+
+				double minLatitude = lat1;
+				double maxLatitude = lat2;
+				double minLongitude = lon1;
+				double maxLongitude = lon2;
+
+				return new double[][] { new double[] { minLatitude, minLongitude }, new double[] { maxLatitude, maxLongitude } };
+			}
+			else
+			{
+				throw new ArgumentException("Invalid tileId format");
+			}
+		}
+
+
+		public static string GetPixelForCoordinates(double lat, double lon)
         {
             const int tileSize = 256;
             const int zoom = 16;

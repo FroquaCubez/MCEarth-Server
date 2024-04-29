@@ -31,7 +31,7 @@ namespace ProjectEarthServerAPI.Util
         //tappable settings
         public int minTappableSpawnAmount { get; set; }
         public int maxTappableSpawnAmount { get; set; }
-        public double tappableSpawnRadius { get; set; }
+        public int tappableSpawnRadius { get; set; }
 		public int tappableExpirationTime { get; set; }
 		public bool biomeGeneration { get; set; }
 		public int publicAdventureSpawnPercentage { get; set; }
@@ -40,6 +40,7 @@ namespace ProjectEarthServerAPI.Util
 		public string webPanelPassword { get; set; }
 		public string resourcepack { get; set; }
 		public string buildplates { get; set; }
+		public int maxTappablesPerTile { get; set; }
 
 		//Load method
 

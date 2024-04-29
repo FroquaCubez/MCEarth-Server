@@ -30,13 +30,14 @@ namespace ProjectEarthServerAPI.Util
 				{ "EncounterLocationsFileLocation", "./data/encounterLocations.json" },
 				{ "mixTappableSpawnAmount", 10 },
 				{ "maxTappableSpawnAmount", 100 },
-				{ "tappableSpawnRadius", 0.003 },
+				{ "tappableSpawnRadius", 1 },
 				{ "tappableExpirationTime", 10 }, // Minutes
                 { "biomeGeneration", true }, // Custom Generation. Needs Tile Server!!
                 { "publicAdventureSpawnPercentage", 5 }, // Percentage of Adventure Spawn rate
                 { "publicAdventuresLimit", 2 }, // Public Adventures Limit
                 { "webPanel", true },
 				{ "webPanelPassword", "password" },
+				{ "maxTappablesPerTile", 20 },
 				{ "resourcepack", "https://github.com/andiricum2/MC-Earth-Resourcepack/releases/download/v1/vanilla.zip" },
 				{ "buildplates",  "https://github.com/andiricum2/MC-Earth-Buildplates/releases/download/v1/Buildplates.zip" },
 				{ "multiplayerAuthKeys", new Dictionary<string, string>
