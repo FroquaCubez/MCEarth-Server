@@ -34,21 +34,24 @@ namespace ProjectEarthServerAPI
 		{
 			services.AddControllers();
 
-			services.AddSession(options =>
+			if (StateSingleton.Instance.config.webPanel == true)
 			{
-				options.IdleTimeout = TimeSpan.FromDays(30);
-				options.Cookie.HttpOnly = true; 
-				options.Cookie.IsEssential = true;
-			});
-
-			services.AddAuthorization(options =>
-			{
-				options.AddPolicy("LoggedIn", policy =>
+				services.AddSession(options =>
 				{
-					policy.RequireAuthenticatedUser();
-					policy.RequireClaim("Session", "loggedIn");
+					options.IdleTimeout = TimeSpan.FromDays(30);
+					options.Cookie.HttpOnly = true;
+					options.Cookie.IsEssential = true;
 				});
-			});
+
+				services.AddAuthorization(options =>
+				{
+					options.AddPolicy("LoggedIn", policy =>
+					{
+						policy.RequireAuthenticatedUser();
+						policy.RequireClaim("Session", "loggedIn");
+					});
+				});
+			}
 
 			services.AddControllersWithViews();
 
@@ -110,20 +113,21 @@ namespace ProjectEarthServerAPI
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.UseStaticFiles();
-
-			var provider = new FileExtensionContentTypeProvider();
-			provider.Mappings[".avif"] = "image/avif";
-			app.UseStaticFiles(new StaticFileOptions
-			{
-				FileProvider = new PhysicalFileProvider(
-					Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "backgrounds")),
-				RequestPath = "/images/backgrounds",
-				ContentTypeProvider = provider
-			});
-
 			if (StateSingleton.Instance.config.webPanel == true)
 			{
+				app.UseStaticFiles();
+
+				// For Avif images
+				var provider = new FileExtensionContentTypeProvider();
+				provider.Mappings[".avif"] = "image/avif";
+				app.UseStaticFiles(new StaticFileOptions
+				{
+					FileProvider = new PhysicalFileProvider(
+						Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "backgrounds")),
+					RequestPath = "/images/backgrounds",
+					ContentTypeProvider = provider
+				});
+
 				app.UseEndpoints(endpoints =>
 				{
 					endpoints.MapControllerRoute(

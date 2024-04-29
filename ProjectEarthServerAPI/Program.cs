@@ -38,7 +38,7 @@ namespace ProjectEarthServerAPI
 			StateSingleton.Instance.challengeStorage = ChallengeStorage.FromFiles(StateSingleton.Instance.config.challengeStorageFolderLocation);
 			StateSingleton.Instance.productCatalog = ProductCatalogResponse.FromFile(StateSingleton.Instance.config.productCatalogFileLocation);
 			StateSingleton.Instance.tappableData = TappableGeneration.loadAllTappableSets();
-			StateSingleton.Instance.activeTappables = new();
+			StateSingleton.Instance.activeTappables = [];
 			StateSingleton.Instance.levels = ProfileUtils.readLevelDictionary();
 			StateSingleton.Instance.shopItems = ShopUtils.readShopItemDictionary();
 
