@@ -88,7 +88,8 @@ namespace ProjectEarthServerAPI.Util
 					tappables.AddRange(newTappables);
 				}
 
-				if (new Random().Next(1, 101) <= StateSingleton.Instance.config.publicAdventureSpawnPercentage && StateSingleton.Instance.config.publicAdventuresLimit < AdventureUtils.ReadEncounterLocations().Count)
+				int randomnumber = new Random().Next(1, 101);
+				if (randomnumber <= StateSingleton.Instance.config.publicAdventureSpawnPercentage && StateSingleton.Instance.config.publicAdventuresLimit > AdventureUtils.ReadEncounterLocations().Count)
 				{
 
 					DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
