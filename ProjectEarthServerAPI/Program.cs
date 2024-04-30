@@ -9,11 +9,8 @@ using Serilog;
 using Uma.Uuid;
 using Serilog.Events;
 using System;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.IO.Compression;
 
 namespace ProjectEarthServerAPI
@@ -141,8 +138,6 @@ namespace ProjectEarthServerAPI
 			}
 
 			CreateHostBuilder(args).Build().Run();
-
-			Log.Information("Server started!");
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -151,7 +146,8 @@ namespace ProjectEarthServerAPI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+					Log.Information("Server started!");
+				});
     }
 
 }

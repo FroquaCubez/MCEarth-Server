@@ -174,7 +174,7 @@ namespace ProjectEarthServerAPI.Util
 		{
 			var storage = new LocationResponse.ActiveLocationStorage { location = tappable, rewards = rewards };
 			StateSingleton.Instance.activeTappables.Add(tappable.id, storage);
-			Log.Debug($"Active tappables count: {StateSingleton.Instance.activeTappables.Count}");
+			// Log.Debug($"Active tappables count: {StateSingleton.Instance.activeTappables.Count}");
 		}
 
 	}

@@ -37,7 +37,7 @@ namespace ProjectEarthServerAPI.Util
 
             AddToken(playerId, itemtoken);
 
-            Log.Information($"[{playerId}]: Added item token {itemId}!");
+            Log.Debug($"[{playerId}]: Added item token {itemId}!");
 			EventUtils.HandleEvents(playerId, new ItemEvent
 			{
 				action = ItemEventAction.ItemJournalEntryUnlocked,
@@ -52,7 +52,7 @@ namespace ProjectEarthServerAPI.Util
             {
                 tokens.Result.tokens.Add(Guid.NewGuid(), tokenToAdd);
                 WriteTokens(playerId, tokens);
-                Log.Information($"[{playerId}] Added token!");
+                Log.Debug($"[{playerId}] Added token!");
                 return true;
             }
 
@@ -72,7 +72,7 @@ namespace ProjectEarthServerAPI.Util
 
                 WriteTokens(playerId, parsedTokens);
 
-                Log.Information($"[{playerId}]: Redeemed token {tokenId}.");
+                Log.Debug($"[{playerId}]: Redeemed token {tokenId}.");
 
 				if (tokenToRedeem.clientProperties != null)
 				{
@@ -92,7 +92,7 @@ namespace ProjectEarthServerAPI.Util
             }
             else
             {
-                Log.Information($"[{playerId}] tried to redeem token {tokenId}, but it was not in the token list!");
+                Log.Debug($"[{playerId}] tried to redeem token {tokenId}, but it was not in the token list!");
                 return null;
             }
         }

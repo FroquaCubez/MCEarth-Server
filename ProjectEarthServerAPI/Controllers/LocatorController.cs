@@ -29,7 +29,7 @@ namespace ProjectEarthServerAPI.Controllers
 		public ContentResult Get()
 		{
 			string baseServerIP = GetBaseServerIP();
-			Log.Information($"{HttpContext.Connection.RemoteIpAddress} has issued locator, replying with {baseServerIP}");
+			Log.Debug($"{HttpContext.Connection.RemoteIpAddress} has issued locator, replying with {baseServerIP}");
 
 			LocatorResponse.Root response = new LocatorResponse.Root()
 			{
