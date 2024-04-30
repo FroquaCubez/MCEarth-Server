@@ -106,14 +106,14 @@ namespace ProjectEarthServerAPI.Util
 			return Encounters;
 		}
 
-		public static void CreateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
+		public static LocationResponse.ActiveLocation CreateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
 		{
 			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
 
 			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
 			Guid selectedAdventureId = Guid.NewGuid(); // Generate a new unique ID for the encounter
 
-			Encounters.Add(new LocationResponse.ActiveLocation
+			var newEncounterLocation = new LocationResponse.ActiveLocation
 			{
 				coordinate = new Coordinate { latitude = randomLatitude, longitude = randomLongitude },
 				encounterMetadata = new EncounterMetadata
@@ -136,7 +136,11 @@ namespace ProjectEarthServerAPI.Util
 				},
 				tileId = Tile.GetTileForCoordinates(randomLatitude, randomLongitude),
 				type = "Encounter"
-			});
+			};
+
+			Encounters.Add(newEncounterLocation);
+
+			return newEncounterLocation;
 		}
 
 	}
