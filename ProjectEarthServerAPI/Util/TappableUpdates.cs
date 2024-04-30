@@ -124,6 +124,8 @@ namespace ProjectEarthServerAPI.Util
 							int tappablesInTileId = tappableListInTile.Count;
 							int maxTappablesPerTile = StateSingleton.Instance.config.maxTappablesPerTile;
 							int spawneableTappablesInTile = maxTappablesPerTile - tappablesInTileId;
+							int perRequestMaxTappableSpawnsInTile = StateSingleton.Instance.config.perRequestMaxTappableSpawnsInTile;
+							spawneableTappablesInTile = Math.Min(spawneableTappablesInTile, perRequestMaxTappableSpawnsInTile);
 							if (spawneableTappablesInTile > 0)
 							{
 								// Generar nuevos tappables en este tile

@@ -41,6 +41,7 @@ namespace ProjectEarthServerAPI.Util
 		public string resourcepack { get; set; }
 		public string buildplates { get; set; }
 		public int maxTappablesPerTile { get; set; }
+		public int perRequestMaxTappableSpawnsInTile { get; set; }
 
 		//Load method
 
