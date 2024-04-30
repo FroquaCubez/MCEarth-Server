@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using ProjectEarthServerAPI.Util;
 using Serilog;
+using System.Linq;
 
 namespace ProjectEarthServerAPI.Views
 {
@@ -48,6 +49,11 @@ namespace ProjectEarthServerAPI.Views
 				ViewBag.SpawnRadius = StateSingleton.Instance.config.tappableSpawnRadius;
 				ViewBag.TappableExpirationTime = StateSingleton.Instance.config.tappableExpirationTime;
 				ViewBag.AdventuresCountJson = AdventureUtils.ReadEncounterLocations().Count;
+				var adventures = StateSingleton.Instance.activeTappables
+					.Where(pred => pred.Value.location.type == "Encounter")
+					.Select(pred => pred.Value.location)
+					.ToList();
+				ViewBag.AdventuresCount = adventures.Count;
 				ViewBag.PublicAdventuresLimit = StateSingleton.Instance.config.publicAdventuresLimit;
 				ViewBag.AdventureSpawnPercentage = StateSingleton.Instance.config.publicAdventureSpawnPercentage;
 				ViewBag.MaxTappablesPerTile = StateSingleton.Instance.config.maxTappablesPerTile;

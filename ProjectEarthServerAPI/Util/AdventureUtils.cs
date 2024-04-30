@@ -106,14 +106,22 @@ namespace ProjectEarthServerAPI.Util
 			return Encounters;
 		}
 
-		public static LocationResponse.ActiveLocation CreateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
+		public static LocationResponse.ActiveLocation GenerateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
+		{
+
+			AdventureUtils adventureUtils = new AdventureUtils();
+
+			return adventureUtils.CreateEncounterLocation(randomLatitude, randomLongitude, expirationTime);
+		}
+
+		public LocationResponse.ActiveLocation CreateEncounterLocation(double randomLatitude, double randomLongitude, DateTime expirationTime)
 		{
 			Encounters.RemoveAll(match => match.expirationTime < DateTime.UtcNow);
 
 			string selectedAdventureIcon = AdventureIcons[random.Next(0, AdventureIcons.Length)];
 			Guid selectedAdventureId = Guid.NewGuid(); // Generate a new unique ID for the encounter
 
-			var newEncounterLocation = new LocationResponse.ActiveLocation
+			LocationResponse.ActiveLocation newEncounterLocation = new LocationResponse.ActiveLocation
 			{
 				coordinate = new Coordinate { latitude = randomLatitude, longitude = randomLongitude },
 				encounterMetadata = new EncounterMetadata
@@ -140,9 +148,17 @@ namespace ProjectEarthServerAPI.Util
 
 			Encounters.Add(newEncounterLocation);
 
+			StoreEncounter(newEncounterLocation);
+
 			return newEncounterLocation;
 		}
 
+		private void StoreEncounter(LocationResponse.ActiveLocation newEncounterLocation)
+		{
+			var storage = new LocationResponse.ActiveLocationStorage { location = newEncounterLocation };
+			StateSingleton.Instance.activeTappables.Add(newEncounterLocation.id, storage);
+			// Log.Debug($"Active tappables count: {StateSingleton.Instance.activeTappables.Count}");
+		}
 	}
 }
 

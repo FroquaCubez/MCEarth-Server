@@ -24,7 +24,7 @@ namespace ProjectEarthServerAPI.Util
                 StateSingleton.Instance.activeTappables.Remove(tappableId);
             }
 
-            Log.Debug($"Removed {tappablesToRemove.Count} expired tappables.");
+            // Log.Debug($"Removed {tappablesToRemove.Count} expired tappables.");
         }
 
         public static LocationResponse.Root GetActiveLocations(double lat, double lon, int radius = 1)
@@ -37,7 +37,11 @@ namespace ProjectEarthServerAPI.Util
                     .Select(kvp => kvp.Value.location)
                     .ToList();
 
-                var globalEncounters = AdventureUtils.GetEncountersForLocation(lat, lon);
+				var globalEncounters = StateSingleton.Instance.activeTappables
+					.Where(kvp => kvp.Value.location.type == "Encounter")
+					.Select(kvp => kvp.Value.location)
+					.ToList();
+
                 globalTappables.AddRange(globalEncounters);
 
                 return new LocationResponse.Root
@@ -54,6 +58,7 @@ namespace ProjectEarthServerAPI.Util
             }
             else
             {
+                AdventureUtils.GetEncountersForLocation(lat, lon);
                 radius = StateSingleton.Instance.config.tappableSpawnRadius;
                 string tileId = Tile.GetTileForCoordinates(lat, lon);
                 string[] parts = tileId.Split('_');
@@ -69,17 +74,18 @@ namespace ProjectEarthServerAPI.Util
                 var maxCoordinates = new Coordinate { latitude = maxTileCoordinates[1][0], longitude = maxTileCoordinates[1][1] };
 
 				var tappables = StateSingleton.Instance.activeTappables
-				.Where(pred =>
-					pred.Value.location.coordinate.latitude >= minCoordinates.latitude &&
-					pred.Value.location.coordinate.latitude <= maxCoordinates.latitude &&
-					pred.Value.location.coordinate.longitude >= minCoordinates.longitude &&
-					pred.Value.location.coordinate.longitude <= maxCoordinates.longitude)
-				.Select(pred => pred.Value.location)
-				.ToList();
+				    .Where(pred => pred.Value.location.type == "Tappable")
+				    .Select(pred => pred.Value.location)
+				    .ToList();
+
+                var encounters = StateSingleton.Instance.activeTappables
+                    .Where(pred => pred.Value.location.type == "Encounter")
+                    .Select(pred => pred.Value.location)
+                    .ToList();
 
 
-				// TAPPABLE GENERATION
-				if (StateSingleton.Instance.config.maxTappableSpawnAmount > tappables.Count)
+                // TAPPABLE GENERATION
+                if (StateSingleton.Instance.config.maxTappableSpawnAmount > tappables.Count)
 				{
 					// For each tile
 					for (int latLoop = tileIdLat - radius; latLoop <= tileIdLat + radius; latLoop++)
@@ -129,32 +135,30 @@ namespace ProjectEarthServerAPI.Util
 								}
 							}
 
-							// Encounters/Adventures
-							var encountersInCurrentTile = AdventureUtils.GetEncountersForLocation(lat, lon)
-							.Where(kvp => kvp.tileId == currentTileId)
-							.Select(pred => pred)
-							.ToList();
+                            // Encounters/Adventures
+                            if (StateSingleton.Instance.config.publicAdventuresLimit > encounters.Count)
+                            {
+                                var encountersInCurrentTile = StateSingleton.Instance.activeTappables
+                                .Where(kvp => kvp.Value.location.tileId == currentTileId && kvp.Value.location.type == "Encounter")
+                                .Select(kvp => kvp.Value.location)
+                                .ToList();
 
-							tappables.AddRange(encountersInCurrentTile);
+                                tappables.AddRange(encountersInCurrentTile);
 
-							double randomLatitude = minCoordinates.latitude + (random.NextDouble() * (maxCoordinates.latitude - minCoordinates.latitude));
-							double randomLongitude = minCoordinates.longitude + (random.NextDouble() * (maxCoordinates.longitude - minCoordinates.longitude));
+                                if (random.Next(1, 101) <= StateSingleton.Instance.config.publicAdventureSpawnPercentage)
+                                {
+                                    double randomLatitude = minCoordinates.latitude + (random.NextDouble() * (maxCoordinates.latitude - minCoordinates.latitude));
+                                    double randomLongitude = minCoordinates.longitude + (random.NextDouble() * (maxCoordinates.longitude - minCoordinates.longitude));
 
-							var encounterCount = AdventureUtils.GetEncountersForLocation(lat, lon).Count - 1;
-							var existingLocationsCount = AdventureUtils.ReadEncounterLocations().Count;
+                                    DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
 
-							if (random.Next(1, 101) <= StateSingleton.Instance.config.publicAdventureSpawnPercentage)
-							{
-								if (StateSingleton.Instance.config.publicAdventuresLimit > encounterCount + existingLocationsCount)
-								{
-									DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
-									var newAdventures = AdventureUtils.CreateEncounterLocation(randomLatitude, randomLongitude, expirationTime);
-									if (newAdventures != null)
-									{
-										tappables.Add(newAdventures);
-									}
-								}
-							}
+                                    var newAdventures = AdventureUtils.GenerateEncounterLocation(randomLatitude, randomLongitude, expirationTime);
+                                    if (newAdventures != null)
+                                    {
+                                        tappables.Add(newAdventures);
+                                    }
+                                }
+                            }
 						}
 					}
 				}

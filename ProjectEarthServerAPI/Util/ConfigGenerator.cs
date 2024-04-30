@@ -33,7 +33,7 @@ namespace ProjectEarthServerAPI.Util
 				{ "tappableExpirationTime", 10 }, // Minutes
                 { "biomeGeneration", true }, // Custom Generation. Needs Tile Server!!
                 { "publicAdventureSpawnPercentage", 5 }, // Percentage of Adventure Spawn rate
-                { "publicAdventuresLimit", 2 }, // Public Adventures Limit
+                { "publicAdventuresLimit", 5 }, // Public Adventures Limit
                 { "webPanel", true },
 				{ "webPanelPassword", "password" },
 				{ "maxTappablesPerTile", 20 },
