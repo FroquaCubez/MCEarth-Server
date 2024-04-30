@@ -28,7 +28,6 @@ namespace ProjectEarthServerAPI.Util
 				{ "ShopItemDictionaryFileLocation", "./data/shopItemDictionary.json" },
 				{ "LevelDictionaryFileLocation", "./data/levelDictionary.json" },
 				{ "EncounterLocationsFileLocation", "./data/encounterLocations.json" },
-				{ "mixTappableSpawnAmount", 10 },
 				{ "maxTappableSpawnAmount", 100 },
 				{ "tappableSpawnRadius", 1 },
 				{ "tappableExpirationTime", 10 }, // Minutes

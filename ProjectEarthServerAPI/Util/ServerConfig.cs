@@ -29,7 +29,6 @@ namespace ProjectEarthServerAPI.Util
 		public string EncounterLocationsFileLocation { get; set; }
         public Dictionary<string, string> multiplayerAuthKeys { get; set; }
         //tappable settings
-        public int minTappableSpawnAmount { get; set; }
         public int maxTappableSpawnAmount { get; set; }
         public int tappableSpawnRadius { get; set; }
 		public int tappableExpirationTime { get; set; }
