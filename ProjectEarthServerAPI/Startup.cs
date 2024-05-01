@@ -34,8 +34,33 @@ namespace ProjectEarthServerAPI
 		{
 			services.AddControllers();
 
+
+			services.AddResponseCompression(options =>
+			{
+				options.Providers.Add<GzipCompressionProvider>();
+			});
+
+			services.AddResponseCaching();
+
+			services.AddApiVersioning(config =>
+			{
+				config.DefaultApiVersion = new ApiVersion(1, 1);
+				config.AssumeDefaultVersionWhenUnspecified = true;
+				config.ReportApiVersions = true;
+			});
+
+
+			services.AddHttpClient();
+
+			services.AddAuthentication("GenoaAuth")
+				.AddScheme<AuthenticationSchemeOptions, GenoaAuthenticationHandler>("GenoaAuth", null);
+
 			if (StateSingleton.Instance.config.webPanel == true)
 			{
+				services.AddHttpContextAccessor();
+
+				services.AddControllersWithViews();
+
 				services.AddSession(options =>
 				{
 					options.IdleTimeout = TimeSpan.FromDays(30);
@@ -52,29 +77,6 @@ namespace ProjectEarthServerAPI
 					});
 				});
 			}
-
-			services.AddControllersWithViews();
-
-			services.AddHttpContextAccessor();
-
-			services.AddResponseCompression(options =>
-			{
-				options.Providers.Add<GzipCompressionProvider>();
-			});
-
-			services.AddResponseCaching();
-
-			services.AddApiVersioning(config =>
-			{
-				config.DefaultApiVersion = new ApiVersion(1, 1);
-				config.AssumeDefaultVersionWhenUnspecified = true;
-				config.ReportApiVersions = true;
-			});
-
-			services.AddHttpClient();
-
-			services.AddAuthentication("GenoaAuth")
-				.AddScheme<AuthenticationSchemeOptions, GenoaAuthenticationHandler>("GenoaAuth", null);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -106,12 +108,13 @@ namespace ProjectEarthServerAPI
 			app.UseETagger();
 			//app.UseHttpsRedirection();
 
-			app.UseSession();
-
 			app.UseRouting();
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TransactionManager.MaximumTimeout });
+
 
 			if (StateSingleton.Instance.config.webPanel == true)
 			{
@@ -136,17 +139,16 @@ namespace ProjectEarthServerAPI
 				});
 			}
 
-
-			app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TransactionManager.MaximumTimeout });
-
 			app.UseResponseCaching();
 
+			app.UseResponseCompression();
 
-			if (!env.IsDevelopment())
+			//app.UseSession();
+
+			app.UseEndpoints(endpoints =>
 			{
-				app.UseResponseCompression();
-			}
-
+				endpoints.MapControllers();
+			});
 		}
 
 	}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using ProjectEarthServerAPI.Util;
 using Serilog;
 using System.Linq;
@@ -22,11 +21,8 @@ namespace ProjectEarthServerAPI.Views
 		{
 			if (password == StateSingleton.Instance.config.webPanelPassword)
 			{
-				// Correct password, set session flag
-				HttpContext.Session.SetString(SessionKey, "true");
-
-				// Redirect to the panel
-				return RedirectToAction("Index");
+				// Correct password, set flag in the redirect URL
+				return RedirectToAction("Index", new { authorized = "true" });
 			}
 			else
 			{
@@ -36,10 +32,10 @@ namespace ProjectEarthServerAPI.Views
 			}
 		}
 
-		public IActionResult Index()
+		public IActionResult Index(string authorized)
 		{
 			// Check if the session flag is present
-			if (HttpContext.Session.GetString(SessionKey) == "true")
+			if (authorized == "true")
 			{
 				// User has successfully logged in, show the panel
 				// Get data for the view
