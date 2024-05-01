@@ -2,6 +2,11 @@
 
 *The central nervous system of Project Earth* 
 
+## WEB PANEL 🎚️
+![image](https://github.com/andiricum2/MCEarth-Server/assets/62946099/d964092e-0dee-44e4-b054-9c09b05a866d)
+![image](https://github.com/andiricum2/MCEarth-Server/assets/62946099/4620dc61-63a2-4861-b2be-c2d3179f1086)
+
+
 ## DISCLAIMER ⚠️
 
 The API implementation is **NOT complete**, which means that not all of the game features might work as expected.
