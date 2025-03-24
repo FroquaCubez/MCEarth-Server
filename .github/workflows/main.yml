@@ -1,0 +1,37 @@
+name: Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        TAG:
+          - linux-x64
+          - linux-arm
+          - win-x64
+          - win-x86
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+    - name: Restore NuGet Packages
+      run: dotnet restore
+    - name: Build
+      run: dotnet publish -r ${{ matrix.TAG }} -p:PublishSingleFile=true -c Release --no-restore
+    - name: Upload Build Result
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.TAG }}-build
+        path: ./ProjectEarthServerAPI/bin/Release/net8.0/${{ matrix.TAG }}/publish
